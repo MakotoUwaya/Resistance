@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "Contact";
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/game")
+}
+
+<div id="wrap">
+    <span id="score"></span>
+    <!--<a href="javascript:history.back();">戻る</a>-->
+
+    <div id="player1icon" class="playericon">
+        <img id="player1image" class="playerimage" src="~/Image/Player/Player01.png" />
+        <span id="player1overlay" class="overlay"></span>
+        <div id="player1name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player2icon" class="playericon">
+        <img id="player2image" class="playerimage" src="~/Image/Player/Player02.png" />
+        <span id="player2overlay" class="overlay"></span>
+        <div id="player2name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player3icon" class="playericon">
+        <img id="player3image" class="playerimage" src="~/Image/Player/Player03.png" />
+        <span id="player3overlay" class="overlay"></span>
+        <div id="player3name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player4icon" class="playericon">
+        <img id="player4image" class="playerimage" src="~/Image/Player/Player04.png" />
+        <span id="player4overlay" class="overlay"></span>
+        <div id="player4name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player5icon" class="playericon">
+        <img id="player5image" class="playerimage" src="~/Image/Player/Player05.png" />
+        <span id="player5overlay" class="overlay"></span>
+        <div id="player5name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player6icon" class="playericon">
+        <img id="player6image" class="playerimage" src="~/Image/Player/Player06.png" />
+        <span id="player6overlay" class="overlay"></span>
+        <div id="player6name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player7icon" class="playericon">
+        <img id="player7image" class="playerimage" src="~/Image/Player/Player07.png" />
+        <span id="player7overlay" class="overlay"></span>
+        <div id="player7name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player8icon" class="playericon">
+        <img id="player8image" class="playerimage" src="~/Image/Player/Player08.png" />
+        <span id="player8overlay" class="overlay"></span>
+        <div id="player8name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player9icon" class="playericon">
+        <img id="player9image" class="playerimage" src="~/Image/Player/Player09.png" />
+        <span id="player9overlay" class="overlay"></span>
+        <div id="player9name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="player10icon" class="playericon">
+        <img id="player10image" class="playerimage" src="~/Image/Player/Player10.png" />
+        <span id="player10overlay" class="overlay"></span>
+        <div id="player10name" class="playername">
+        </div>
+        <input type="hidden" class="selected" value="false" />
+        <input type="hidden" class="voted" value="false" />
+    </div>
+
+    <div id="votebutton">
+        <img id="voteimage" src="~/Image/Component/Jp/Vote.png" />
+    </div>
+
+    <div id="selectbutton">
+        <img id="selectimage" src="~/Image/Component/Jp/Select.png" />
+    </div>
+
+    <div id="revotebutton">
+        <img id="revoteimage" src="~/Image/Component/Jp/reselect.png" />
+    </div>
+
+    <div id="missionstartbutton">
+        <img id="missionstartimage" src="~/Image/Component/Jp/missionstart.png" />
+    </div>
+
+    <div id="missionresultbutton">
+        <img id="missionresultimage" src="~/Image/Component/Jp/missionsuccess.png" />
+    </div>
+
+    <div id="voteokorngbutton">
+        <div class="voteokngbox">
+            <img id="okimage" class="voteokng" src="~/Image/Component/Jp/OK.png" />
+        </div>
+        <div class="voteokngbox">
+            <img id="ngimage" class="voteokng" src="~/Image/Component/Jp/NG.png" />
+        </div>
+    </div>
+
+    <div id="missionbutton">
+        <div class="missionbuttonbox">
+            <img id="successimage" class="missionsuccessfail" src="~/Image/Component/Jp/Success.png" />
+        </div>
+        <div class="missionbuttonbox">
+            <img id="failimage" class="missionsuccessfail" src="~/Image/Component/Jp/Fail.png" />
+        </div>
+    </div>
+</div>

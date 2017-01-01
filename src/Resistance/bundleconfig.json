@@ -1,0 +1,8 @@
+[
+  {
+    "outputFileName": "Scripts/jquery.cookie.min.js",
+    "inputFiles": [
+      "Scripts/jquery.cookie.js"
+    ]
+  }
+]

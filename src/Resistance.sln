@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resistance", "Resistance\Resistance.csproj", "{FA0E1937-F918-4D06-8AA2-FE8B86F2D177}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resistance.Tests", "Resistance.Tests\Resistance.Tests.csproj", "{B5A14E92-5C77-41C0-819B-78A428F1336E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resistance.Core", "Resistance.Core\Resistance.Core.csproj", "{7C5E8FAA-8224-4733-B501-E328FC664C12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA0E1937-F918-4D06-8AA2-FE8B86F2D177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA0E1937-F918-4D06-8AA2-FE8B86F2D177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA0E1937-F918-4D06-8AA2-FE8B86F2D177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA0E1937-F918-4D06-8AA2-FE8B86F2D177}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5A14E92-5C77-41C0-819B-78A428F1336E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A14E92-5C77-41C0-819B-78A428F1336E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A14E92-5C77-41C0-819B-78A428F1336E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A14E92-5C77-41C0-819B-78A428F1336E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C5E8FAA-8224-4733-B501-E328FC664C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C5E8FAA-8224-4733-B501-E328FC664C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C5E8FAA-8224-4733-B501-E328FC664C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C5E8FAA-8224-4733-B501-E328FC664C12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

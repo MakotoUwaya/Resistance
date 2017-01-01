@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="row-margin-20">
+    <img src="~/Image/Component/Common/GameLogo.png" alt="Resistance Game Logo" class="img-responsive center-block" />
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>ストーリー</h2>
+        <p>
+            『レジスタンス』では、プレイヤーは地下抵抗組織――レジスタンスの一員となり、圧政を行う政府に対し、抵抗活動を繰り広げます。<br />
+            ただし、プレイヤーの中には政府からのスパイがまぎれており、レジスタンス活動に対してサボタージュを働きます。<br />
+        </p>
+        @Html.ActionLink("もっと見る >>", "Story", "Introduction", routeValues: null, htmlAttributes: new { @class = "btn btn-default" })
+    </div>
+    <div class="col-md-4">
+        <h2>ゲームの進め方</h2>
+        <p>
+            1ゲームは5ラウンドで構成され、先に3回ミッションを成功(失敗)させた陣営の勝利です。<br />
+            ゲーム開始後、各プレイヤーの役割(レジスタンス・スパイ)が決定します。<br />
+            その後、最初のリーダーが決まればゲームスタートです。<br />
+        </p>
+        @Html.ActionLink("もっと見る >>", "GameRule", "Introduction", routeValues: null, htmlAttributes: new { @class = "btn btn-default" })
+    </div>
+    <div class="col-md-4">
+        <h2>陰謀カード一覧</h2>
+        <p>
+            スパイは全員の役割を知っていますが、レジスタンスは何も分かりません。<br />
+            陰謀カードをうまく活用してヒントを増やしましょう。
+        </p>
+        @Html.ActionLink("もっと見る >>", "PlotCardList", "Introduction", routeValues: null, htmlAttributes: new { @class = "btn btn-default" })
+    </div>
+
+</div>
