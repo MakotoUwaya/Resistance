@@ -352,7 +352,7 @@
     <Content Include="Scripts\jquery-3.1.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\Resistance.Core.csproj">
+    <ProjectReference Include="..\Resistance.Core\Resistance.Core.csproj">
       <Project>{7c5e8faa-8224-4733-b501-e328fc664c12}</Project>
       <Name>Resistance.Core</Name>
     </ProjectReference>
