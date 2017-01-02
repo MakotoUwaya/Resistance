@@ -13,9 +13,5 @@ namespace Resistance.Models.Game
         [Required]
         [Display(Name = "ルーム名")]
         public string RoomName { get; set; }
-
-        [Required]
-        [Display(Name = "人数")]
-        public int PlayerCount { get; set; }
     }
 }

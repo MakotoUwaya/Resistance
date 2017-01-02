@@ -1,10 +1,6 @@
 ﻿$(function () {
-    // クッキーからユーザ名を取得
-    $("#username").val($.cookie('username'));
-
     // 同期を取るルーム名を指定 ここではURL
-    //$.connection.hub.qs = { room: location.href };
-    $.connection.hub.qs = { room: $("#gametitle").text() };
+    $.connection.hub.qs = { robby: location.href };
 
     // デバッグ用にログを出力
     $.connection.hub.logging = true;
@@ -13,62 +9,127 @@
     var robby = $.connection.robby;
 
     // サーバからクライアントへのRPC
-    robby.client.received = function (user, message, count, canstart) {
-        $("#list").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] ：" + message + "</li>");
-        $("#membercount").text(count);
+    robby.client.buzz = function (user, message) {
+        $("#chatlist").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] <br />" + message + "</li>");
+    };
+
+    robby.client.roomUpdate = function (roomname, count, user, message) {
+        var row = $("<tr></tr>", {
+            "id": "roomrow-" + roomname
+        });
+
+        // 既に存在していればinnerHTMLを削除
+        var target = $("#roomrow-" + roomname);
+        if (target.length === 0) {
+            $("#roomlistbody").append(row);
+            target = $("#roomrow-" + roomname);
+        } else {
+            target.empty();
+        }
+
+        var cell1 = $("<td></td>");
+
+        cell1.append($("<a></a>",{
+            "class": "dialoglink btn btn-link",
+            "data-toggle": "modal",
+            "data-target": "#roomdialog",
+            "text": roomname,
+            "id": "dialoglink-" + roomname
+        }));
+        target.append(cell1);
+
+        var cell2 = $("<td></td>");
+        cell2.append(count + "人");
+        target.append(cell2);
+
+        var cell3 = $("<td></td>");
+        var joinbutton = $("<button></button>",{
+            "id": "joinroom-" + roomname,
+            "class": "joinroom btn btn-default"
+        });
+
+        joinbutton.append($("<span></span>",{
+            "class": "glyphicon glyphicon-log-in"
+        }));
+        cell3.append(joinbutton);
+        target.append(cell3);
+
+        var cell4 = $("<td></td>");
+        var leavebutton = $("<button></button>",{
+            "id": "leaveroom-" + roomname,
+            "class": "leaveroom btn btn-default"
+        });
+
+        leavebutton.append($("<span></span>", {
+            "class": "glyphicon glyphicon-log-out"
+        }));
+        cell4.append(leavebutton);
+        target.append(cell4);      
+  
+        $(".dialoglink").click(function () {
+            var roomname = $(this).attr('id').replace(/dialoglink-/g, '');
+            robby.server.dialogupdate(roomname);
+        });
+
+        $(".joinroom").click(function () {
+            robby.server.join($(this).attr('id').replace(/joinroom-/g, ''));
+        });
+
+        $(".leaveroom").click(function () {
+            robby.server.withdraw($(this).attr('id').replace(/leaveroom-/g, ''));
+        });
+
+        if (message !== "")
+        {
+            $("#chatlist").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] <br />" + message + "</li>");
+        }
+
+        if ($("#roomdialogtitle").text() === roomname) {
+            robby.server.dialogupdate(roomname);
+        }
+    };
+
+    robby.client.dialogupdate = function (roomname, player, canstart) {
+        $("#roomdialogtitle").text(roomname);
+        $("#roomdialogmembercount").text(player.length);
+        $("#roomdialogplayerlist").empty();
+        $.each(player, function (i, p) {
+            //var img = $('<img src="~/Image/Component/Common/Player_img.png" alt="'+ p.Name +'" class="img-thumbnail thumbnailsize" />');
+            //img.append(p.Name);
+            $("#roomdialogplayerlist").append('<div class="thumbnailcontainer"><div><img src="/Image/Component/Common/Player_img.png" alt="'
+                + p.Name + '" class="img-thumbnail thumbnailsize" /></div>' + p.Name + '</div>');
+        });
+
         $("#startgame").prop("disabled", !canstart);
     };
 
-    robby.client.buzz = function (user, message) {
-        $("#list").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] ：" + message + "</li>");
+    robby.client.removeRoom = function (roomname) {
+        var target = $("#roomrow-" + roomname);
+        if (target.length === 1) {
+            target.remove();
+        }
     };
 
-    robby.client.result = function (isjoined) {
-        $("#username").attr("readonly", isjoined);
-        $("#roomlogin").prop("disabled", isjoined);
-        $("#roomlogout").prop("disabled", !isjoined);
-    };
-
-    robby.client.statusUpdate = function (count, canstart) {
+    robby.client.received = function (user, message, count, canstart) {
+        $("#chatlist").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] <br />" + message + "</li>");
         $("#membercount").text(count);
         $("#startgame").prop("disabled", !canstart);
     };
 
     robby.client.gameStart = function () {
-        window.location.href = "Contact";
+        window.location.href = "Game";
     };
 
     // クライアントからサーバへのRPC
     $.connection.hub.start().done(function () {
         robby.server.windowLoaded();
 
-        $(".joinroom").click(function () {
-            var afaffa = $(this).attr('id');
-            alert(afaffa);
-        });
-
-        $(".leaveroom").click(function () {
-            var afaffa = $(this);
-            alert(afaffa);
-        });
-
-        $("#roomlogout").click(function () {
-            robby.server.withdraw($("#username").val());
-        });
-
-        $("#sendmessage").click(function () {
-            var user = $("#username").val();
-            if (user !== '') {
-                robby.server.message(user, $("#messagetext").val());
-                $("#messagetext").val('');
-            }
-            else {
-                alert('ユーザー名を入力して下さい。');
-            }
+        $("#createroom").click(function () {
+            robby.server.create($("#roomname").val());
         });
 
         $("#startgame").click(function () {
-            robby.server.gameStart();
+            robby.server.gameStart($("#roomdialogtitle").text());
         });
     });
 });
@@ -89,3 +150,4 @@ var formatDate = function (date, format) {
     }
     return format;
 };
+

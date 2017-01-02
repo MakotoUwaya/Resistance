@@ -70,13 +70,13 @@ namespace Resistance.Core
             {
                 throw new RoomExpction($"ルームに参加できる人数({MaximumMemberCount}人)を超えています。");
             }
-            else if (this.PlayerList.Where(m => m.Name == player.Name).Count() > 0)
-            {
-                throw new RoomExpction($"同じ名前のプレイヤーが存在します。別の名前を入力して下さい。");
-            }
             else if (this.PlayerList.Contains(player))
             {
                 throw new RoomExpction($"既にルーム参加しています。");
+            }
+            else if (this.PlayerList.Where(m => m.Name == player.Name).Count() > 0)
+            {
+                throw new RoomExpction($"同じ名前のプレイヤーが存在します。");
             }
             else
             {

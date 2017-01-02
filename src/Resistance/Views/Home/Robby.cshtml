@@ -1,122 +1,104 @@
-﻿@using Resistance.Core:
+﻿@using Resistance.Core
 @using Resistance.Data
-@using System.Collections;
 
 @model Resistance.Models.Game.RobbyViewModel
 @{
     ViewBag.Title = "ロビー";
 }
 
+<div class="clearfix">
+    <div class="robby-left">
+        <div class="row row-margin-20">
+            @Html.LabelFor(m => m.RoomName, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.RoomName, new { id = "roomname", @class = "form-control" })
+            </div>
+            <div class="col-md-offset-2 col-md-10">
+                <button id="createroom" class="btn btn-default">
+                    ルーム新規作成
+                    <span class="glyphicon glyphicon-open"></span>
+                </button>
+            </div>
+
+            @if (User.IsInRole("Administrator"))
+            {
+                <div class="form-group">
+                    <div class="col-xs-offset-2 col-xs-10">
+                        <button id="resetgame" class="btn btn-warning">
+                            リセット
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <h4>ゲームルーム一覧</h4>
+        <hr />
+
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>ルーム名</th>
+                    <th>人数</th>
+                    <th>参加</th>
+                    <th>退出</th>
+                </tr>
+            </thead>
+            <tbody id="roomlistbody">
+                @foreach (var item in RoomInfo.List)
+                {
+                    <tr id="roomrow-@item.Name">
+                        <td>
+                            <a id="dialoglink-@item.Name" class="dialoglink btn btn-link" data-toggle="modal" data-target="#roomdialog">@item.Name</a>
+                        </td>
+                        <td>@(item.MemberCount)人</td>
+                        <td>
+                            <button type="button" id="joinroom-@item.Name" class="joinroom btn btn-default">
+                                <span class="glyphicon glyphicon-log-in"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" id="leaveroom-@item.Name" class="leaveroom btn btn-default">
+                                <span class="glyphicon glyphicon-log-out"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="modal fade" id="roomdialog" tabindex="-1" role="dialog" aria-labelledby="cardtitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 id="roomdialogtitle" class="modal-title">ルーム名</h4>
+                    </div>
+                    <div class="modal-body text-center dialogbody">
+                        <p>ルーム人数：<span id="roomdialogmembercount">0</span>人</p>
+                        <div id="roomdialogplayerlist">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                        <button id="startgame" type="button" class="btn btn-primary" data-dismiss="modal">ゲームを開始する</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="robby-right">
+        <h4>メッセージ</h4>
+        <ul id="chatlist" class="list-group scrollable"></ul>
+    </div>
+</div>
 @section scripts {
     @Scripts.Render("~/bundles/robby")
 }
-
-@using (Html.BeginForm("CreateRoom", "Home", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-{
-    @Html.ValidationSummary("", new { @class = "text-danger" })
-    <div class="form-group">
-        @Html.LabelFor(m => m.RoomName, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(m => m.RoomName, new { @class = "form-control" })
-        </div>
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" id="createroom" class="btn btn-default">
-                ルーム新規作成
-                <span class="glyphicon glyphicon-open"></span>
-            </button>
-        </div>
-    </div>
-}
-
-@if (User.IsInRole("Administrator"))
-{
-    using (Html.BeginForm("Reset", "Home", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-    {
-        <div class="form-group">
-            <div class="col-xs-offset-2 col-xs-10">
-                <button type="button" id="resetgame" class="btn btn-warning">
-                    リセット
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </button>
-            </div>
-        </div>
-    }
-}
-
-<hr />
-<h4>ゲームルーム一覧</h4>
-
-<table class="table table-responsive">
-    <thead>
-        <tr>
-            <th>ルーム名</th>
-            <th>人数</th>
-            <th>参加</th>
-            <th>退出</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Room item in RoomInfo.List)
-        {
-            using (Html.BeginForm("StartGame", "Home", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
-                <tr>
-                    @*<td>
-                            <button type="button" id="startgame" class="btn btn-primary">
-                                開始
-                                <span class="glyphicon glyphicon-play"></span>
-                            </button>
-                        </td>*@
-                    <td>
-                        <a class="btn btn-link" data-toggle="modal" data-target="#room-@item.Name">@item.Name</a>
-                        <!-- Modal -->
-                        <div class="modal fade" id="room-@item.Name" tabindex="-1" role="dialog" aria-labelledby="cardtitle" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                        <h4 class="modal-title">@item.Name</h4>
-                                    </div>
-                                    <div class="modal-body text-center">
-                                        <p>ルーム人数：@(item.MemberCount)人</p>
-                                        <div class="text-center">
-                                            @foreach (Player player in item.OutputList)
-                                            {
-                                                <div class="text-center">
-                                                    <div>
-                                                        <img src="~/Image/Component/Common/Player_img.png" alt="@player.Name" class="img-thumbnail thumbnailsize" />
-                                                    </div>
-                                                    @player.Name
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
-                                        <button type="button" class="btn btn-primary" data-dismiss="modal">ゲームを開始する</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>@(item.MemberCount)人</td>
-                    <td>
-                        <button type="button" id="joinroom-@item.Name" class="joinroom btn btn-default">
-                            <span class="glyphicon glyphicon-log-in"></span>
-                        </button>
-                    </td>
-                    <td>
-                        <button type="button" id="leaveroom-@item.Name" class="leaveroom btn btn-default">
-                            <span class="glyphicon glyphicon-log-out"></span>
-                        </button>
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
-
-
 

@@ -26,26 +26,26 @@ namespace Resistance.Tests.Controllers
         }
 
         [TestMethod]
-        public void About()
+        public void Robby()
         {
             // Arrange
             HomeController controller = new HomeController();
 
             // Act
-            ViewResult result = controller.About() as ViewResult;
+            ViewResult result = controller.Robby() as ViewResult;
 
             // Assert
             Assert.AreEqual("Your application description page.", result.ViewBag.Message);
         }
 
         [TestMethod]
-        public void Contact()
+        public void Game()
         {
             // Arrange
             HomeController controller = new HomeController();
 
             // Act
-            ViewResult result = controller.Contact() as ViewResult;
+            ViewResult result = controller.Game() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

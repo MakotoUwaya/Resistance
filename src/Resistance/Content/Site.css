@@ -219,11 +219,52 @@ textarea {
     padding: 5px;
 }
 
-.thumbnailsize {
-    max-width: 120px;
-    max-height: 120px;
+.dialogbody {
+    position: relative;
+    overflow: hidden;
 }
 
-@media (max-width: 768px) {
+#roomdialogplayerlist {
+    position: relative;
+    left: 50%;
+    float: left;
+}
 
+.thumbnailcontainer {
+    position: relative;
+    left: -50%;
+    float: left;
+    margin: 1px;
+}
+
+.thumbnailsize {
+    max-width: 110px;
+    max-height: 110px;
+}
+
+.scrollable {
+    overflow: auto;
+}
+
+.checkboxoffset {
+    padding-left: 35px;
+}
+
+@media (min-width: 992px) {
+    .checkboxoffset {
+        padding-left: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .robby-left {
+        float: left;
+        width: 70%;
+    }
+
+    .robby-right {
+        float: left;
+        width: 30%;
+        padding-left: 20px;
+    }
 }
