@@ -78,7 +78,7 @@ $(function () {
     };
 
     gameHub.client.setLeader = function (leadername, selectCount) {
-        isleader = leadername === $.cookie('username');
+        isleader = leadername === $("#hiddenroomname").val();
         isvoted = false;
         maxselectcount = selectCount;
 
@@ -105,7 +105,7 @@ $(function () {
             // 親の枠を太くする処理
             var name = iconelement.children('div').text();
             if (name === leadername) {
-                iconelement.css('border', '4px solid red');
+                iconelement.css('border', '2px solid red');
             }
             else {
                 iconelement.css('border', '2px solid black');
@@ -255,7 +255,7 @@ $(function () {
 
     $.connection.hub.start().done(function () {
         gameHub.server.playerInitialization($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
-        //gameHub.server.setLeader();
+        gameHub.server.setLeader();
 
         var playerlist = $(".playericon");
         $.each(playerlist, function (i, element) {

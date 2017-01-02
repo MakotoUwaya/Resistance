@@ -15,37 +15,55 @@ public class GameHub : Hub
     private const int offset = 16;
     private const int cardsize = 120;
 
-    public Room CurrentRoom { get; private set; }
-    public Game CurrentGame { get; private set; }
+    public static Dictionary<string, Room> RoomList { get; private set; }
+    public static Dictionary<string,Game> GameList { get; private set; }
 
-    //private bool IsSetLeader;
-    //private bool IsMissionStart;
+    private static Dictionary<string, List<string>> SetLeaderCaller;
 
-    //public GameHub()
-    //{
-    //}
+    static GameHub()
+    {
+        RoomList = new Dictionary<string, Room>();
+        GameList = new Dictionary<string, Game>();
+        SetLeaderCaller = new Dictionary<string, List<string>>();
+    }
 
-    //public void SetLeader()
-    //{
-    //    if (!this.IsSetLeader)
-    //    {
-    //        this.IsSetLeader = true;
-    //        if (GameStatus.Info.JudgeConclusion)
-    //        {
-    //            Clients.All.Gameover($"レジスタンス：{GameStatus.Info.ResistanceWin} vs スパイ：{GameStatus.Info.SpyWin}\n{(GameStatus.Info.SpyWin < GameStatus.Info.ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
-    //            GameStatus.Info = null;
-    //            RoomInfo.Primary.IsStarted = false;
-    //            for (int i = RoomInfo.Primary.PlayerList.Count - 1; i >= 0; i--)
-    //            {
-    //                RoomInfo.Primary.RemovePlayer(RoomInfo.Primary.PlayerList[i]);
-    //            }
-    //            return;
-    //        }
+    public void SetLeader()
+    {
+        var roomName = Context.QueryString["room"];
+        if (!SetLeaderCaller.ContainsKey(roomName))
+        {
+            SetLeaderCaller[roomName] = new List<string>();
+        }
 
-    //        Clients.All.SetLeader(GameStatus.Info.CurrentLeader.Name, GameStatus.Info.SelectPlayerCount);
-    //        this.IsMissionStart = false;
-    //    }      
-    //}
+        if (!SetLeaderCaller[roomName].Contains(Context.User.Identity.Name))
+        {
+            SetLeaderCaller[roomName].Add(Context.User.Identity.Name);
+        }
+
+        if (SetLeaderCaller[roomName].Count < RoomList[roomName].MemberCount)
+        {
+            this.LeaderUpdate(roomName);
+            return;
+        }
+
+        SetLeaderCaller[roomName].Clear();
+        if (GameList[roomName].JudgeConclusion)
+        {
+            Clients.All.Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
+            GameList[roomName] = new Game(RoomList[roomName].PlayerList);
+            SetLeaderCaller.Remove(roomName);
+            return;
+        }
+
+        GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].NextLeader();
+        this.LeaderUpdate(roomName);
+    }
+
+    private void LeaderUpdate(string roomName)
+    {
+        Clients.All.SetLeader(GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].CurrentLeader.Name,
+                        Rule.SelectMemberCount(RoomList[roomName].MemberCount, GameList[roomName].CurrentPhaseIndex + 1));
+    }
 
     //public void UpdateSelectStatus(string elementName, string color)
     //{
@@ -129,9 +147,23 @@ public class GameHub : Hub
     #region Inititialize
     public void PlayerInitialization(int width, int height)
     {
-        Groups.Add(Context.ConnectionId, Context.QueryString["room"]);
-        this.CurrentRoom = RoomInfo.Get(Context.QueryString["room"]);
-        this.CurrentGame = this.CurrentRoom.RoomGame;
+        var roomName = Context.QueryString["room"];
+        if (string.IsNullOrWhiteSpace(roomName))
+        {
+            // TODO:部屋名が指定されていない場合の処理
+             return;
+        }       
+
+        Groups.Add(Context.ConnectionId, roomName);
+        if (!RoomList.ContainsKey(roomName))
+        {
+            RoomList.Add(roomName, RoomInfo.Get(roomName));
+        }
+
+        if (!GameList.ContainsKey(roomName))
+        {
+            GameList.Add(roomName, RoomList[roomName].RoomGame);
+        }
 
         this.PlayerPositionReset(width, height);
         this.ShowPlayerRole();
@@ -139,8 +171,10 @@ public class GameHub : Hub
 
     public void PlayerPositionReset(int width, int height)
     {
+        var roomName = Context.QueryString["room"];
+
         //var positionList = new List<ShapeModel>();
-        var memberList = this.CurrentRoom.PlayerList.ToList();
+        var memberList = RoomList[roomName].PlayerList.ToList();
         var moveList = new List<Player>();
         for (int i = 0; i < memberList.Count; i++)
         {
@@ -163,7 +197,7 @@ public class GameHub : Hub
         width -= offset;
         height -= offset;
 
-        switch (this.CurrentRoom.MemberCount)
+        switch (RoomList[roomName].MemberCount)
         {
             case 5:
                 Clients.Caller.PositionInitialization(new ShapeModel()
@@ -280,10 +314,11 @@ public class GameHub : Hub
 
     public void ShowPlayerRole()
     {
-        Player myself = this.CurrentRoom.PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
+        var roomName = Context.QueryString["room"];
+        Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
         if (myself != null && myself.Role == PlayerRole.Spy)
         {
-            Clients.Caller.ShowPlayerRole(this.CurrentRoom.PlayerList.Where(p => p.Role == PlayerRole.Spy).ToArray());
+            Clients.Caller.ShowPlayerRole(RoomList[roomName].PlayerList.Where(p => p.Role == PlayerRole.Spy).ToArray());
         }
         else
         {
@@ -293,7 +328,8 @@ public class GameHub : Hub
 
     private string GetIndex(Player player)
     {
-        return $"player{this.CurrentRoom.PlayerList.IndexOf(player) + 1}";
+        var roomName = Context.QueryString["room"];
+        return $"player{RoomList[roomName].PlayerList.IndexOf(player) + 1}";
     }
     #endregion
 
