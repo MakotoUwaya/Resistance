@@ -40,6 +40,12 @@ namespace Resistance.Core
 
         public void SetRole()
         {
+            var leftMemberCount = this.PlayerList.Where(m => m.Role == PlayerRole.None).Select(m => m).Count();
+            if (leftMemberCount == 0)
+            {
+                return;
+            }
+
             var memberCount = Rule.GetRoleCount(this.PlayerList.Count());
             var randam = new Random(DateTime.Now.Millisecond);
 
@@ -49,10 +55,9 @@ namespace Resistance.Core
                 leftMember[randam.Next(leftMember.Length)].SetRole(PlayerRole.Spy);
             }
 
-            for (int i = 0; i < memberCount.Resistance; i++)
+            foreach (var player in this.PlayerList.Where(m => m.Role == PlayerRole.None))
             {
-                var leftMember = this.PlayerList.Where(m => m.Role == PlayerRole.None).Select(m => m).ToArray();
-                leftMember[randam.Next(leftMember.Length)].SetRole(PlayerRole.Resistance);
+                player.SetRole(PlayerRole.Resistance);
             }
         }
 

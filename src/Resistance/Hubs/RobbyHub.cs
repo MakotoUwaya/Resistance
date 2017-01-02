@@ -175,11 +175,12 @@ public class RobbyHub : Hub
                 if (!room.RoomGame.IsActive)
                 {
                     room.RoomGame.IsActive = true;
-                    Clients.Group(roomname).GameStart();
+                    room.RoomGame.SetRole();
+                    Clients.Group(roomname).GameStart(roomname);
                 }
                 else
                 {
-                    Clients.Caller.GameStart();
+                    Clients.Caller.GameStart(roomname);
                 }
             }
             else

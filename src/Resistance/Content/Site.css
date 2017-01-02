@@ -219,15 +219,43 @@ textarea {
     padding: 5px;
 }
 
-.dialogbody {
-    position: relative;
-    overflow: hidden;
-}
 
+/* Robby */
 #roomdialogplayerlist {
     position: relative;
     left: 50%;
     float: left;
+}
+
+/* Game */
+.rolebutton {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+#spylist {
+    list-style: none;
+    position: relative;
+    left: 50%;
+    float: left;
+}
+
+#spylist li {
+    background-color: black;
+    color: white;
+    float: left;
+    width: auto;
+    position: relative;
+    left: -50%;
+    float: left;
+    margin: 1px;
+}
+
+/* Common */
+.dialogbody {
+    position: relative;
+    overflow: hidden;
 }
 
 .thumbnailcontainer {

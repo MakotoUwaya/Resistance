@@ -7,12 +7,16 @@ using Microsoft.AspNet.SignalR.Hubs;
 using Resistance.Core;
 using Resistance.Data;
 using Resistance.Data.Models;
+using System.Threading.Tasks;
 
 [HubName("gameHub")]
 public class GameHub : Hub
 {
     private const int offset = 16;
     private const int cardsize = 120;
+
+    public Room CurrentRoom { get; private set; }
+    public Game CurrentGame { get; private set; }
 
     //private bool IsSetLeader;
     //private bool IsMissionStart;
@@ -65,7 +69,7 @@ public class GameHub : Hub
 
     //public void Vote(bool ok)
     //{
-    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.RequestCookies["username"].Value);
+    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
     //    GameStatus.Info.Members[index].CurrentVote = ok;
 
     //    Clients.All.VoteUpdate($"player{index + 1}", ok ? "true" : "false");
@@ -105,8 +109,8 @@ public class GameHub : Hub
 
     //public void MissionUpdate(bool success)
     //{
-    //    GameStatus.Info.CurrentSelectPlayers.Where(m => m.Name == Context.RequestCookies["username"].Value).Single().CurrentMission = success;
-    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.RequestCookies["username"].Value);
+    //    GameStatus.Info.CurrentSelectPlayers.Where(m => m.Name == Context.User.Identity.Name).Single().CurrentMission = success;
+    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
     //    Clients.All.MissionUpdate($"player{index + 1}");
 
     //    if (GameStatus.Info.CurrentSelectPlayers.Count == GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.HasValue).Count())
@@ -122,175 +126,189 @@ public class GameHub : Hub
     //    }
     //}
 
-    //#region Inititialize
-    //public void PlayerInitialization(int width, int height)
-    //{
-    //    var name = Context.RequestCookies["username"].Value;        
-    //    var positionList = new List<ShapeModel>();
+    #region Inititialize
+    public void PlayerInitialization(int width, int height)
+    {
+        Groups.Add(Context.ConnectionId, Context.QueryString["room"]);
+        this.CurrentRoom = RoomInfo.Get(Context.QueryString["room"]);
+        this.CurrentGame = this.CurrentRoom.RoomGame;        
 
-    //    var memberList = RoomInfo.Primary.PlayerList.ToList();
-    //    var moveList = new List<Player>();
-    //    for (int i = 0; i < memberList.Count; i++)
-    //    {
-    //        if (memberList[i].Name == name)
-    //        {
-    //            break;
-    //        }
-    //        else
-    //        {
-    //            moveList.Add(memberList[i]);
-    //        }
+        var name = Context.User.Identity.Name;
+        var positionList = new List<ShapeModel>();
 
-    //        //if (memberList[i].CurrentVote.HasValue)
-    //        //{
-    //        //    Clients.All.VoteUpdate($"player{i + 1}", memberList[i].CurrentVote.Value ? "true" : "false");
-    //        //}
-    //    }
+        var memberList = this.CurrentRoom.PlayerList.ToList();
+        var moveList = new List<Player>();
+        for (int i = 0; i < memberList.Count; i++)
+        {
+            if (memberList[i].Name == name)
+            {
+                break;
+            }
+            else
+            {
+                moveList.Add(memberList[i]);
+            }
 
-    //    for (int i = 0; i < moveList.Count; i++)
-    //    {
-    //        memberList.Remove(moveList[i]);
-    //    }
-    //    memberList.AddRange(moveList);
+            //if (memberList[i].CurrentVote.HasValue)
+            //{
+            //    Clients.All.VoteUpdate($"player{i + 1}", memberList[i].CurrentVote.Value ? "true" : "false");
+            //}
+        }
 
-    //    width -= offset;
-    //    height -= offset;
+        for (int i = 0; i < moveList.Count; i++)
+        {
+            memberList.Remove(moveList[i]);
+        }
+        memberList.AddRange(moveList);
 
-    //    switch (RoomInfo.Primary.MemberCount)
-    //    {
-    //        case 5:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-    //            break;
+        width -= offset;
+        height -= offset;
 
-    //        case 6:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-    //            break;
+        switch (this.CurrentRoom.MemberCount)
+        {
+            case 5:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
+                break;
 
-    //        case 7:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-    //            break;
+            case 6:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
+                break;
 
-    //        case 8:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-    //            break;
+            case 7:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
+                break;
 
-    //        case 9:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.75) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.25) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
-    //            break;
+            case 8:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
+                break;
 
-    //        case 10:
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
-    //            Clients.Caller.PositionInitialization(new ShapeModel()
-    //            { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[9]), memberList[9].Name);
-    //            break;
+            case 9:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.75) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.25) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
+                break;
 
-    //        default:
-    //            break;
-    //    }
+            case 10:
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
+                Clients.Caller.PositionInitialization(new ShapeModel()
+                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[9]), memberList[9].Name);
+                break;
 
-    //    // 役割確認
-    //    // スパイの場合はスパイのプレイヤー名を赤色で3秒間表示
-    //    this.ShowPlayerRole();
-    //}
+            default:
+                break;
+        }
 
-    //public void ShowPlayerRole()
-    //{
-    //    Player myself = RoomInfo.Primary.PlayerList.Where(m => m.Name == Context.RequestCookies["username"].Value).SingleOrDefault();
-    //    if (myself != null && myself.Role == PlayerRole.Spy)
-    //    {
-    //        Clients.Caller.ShowPlayerRole(RoomInfo.Primary.PlayerList.ToArray());
-    //    }
-    //    else
-    //    {
-    //        Clients.Caller.ShowPlayerRole(new List<Player>().ToArray());
-    //    }
-    //}
+        // 役割確認
+        // スパイの場合はスパイのプレイヤー名を赤色で3秒間表示
+        this.ShowPlayerRole();
+    }
 
-    //private string GetIndex(Player player)
-    //{
-    //    return $"player{RoomInfo.Primary.PlayerList.IndexOf(player) + 1}";
-    //}
-    //#endregion
+    public void ShowPlayerRole()
+    {
+        Player myself = this.CurrentRoom.PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
+        if (myself != null && myself.Role == PlayerRole.Spy)
+        {
+            Clients.Caller.ShowPlayerRole(this.CurrentRoom.PlayerList.Where(p => p.Role == PlayerRole.Spy).ToArray());
+        }
+        else
+        {
+            Clients.Caller.ShowPlayerRole(new List<Player>().ToArray());
+        }
+    }
+
+    private string GetIndex(Player player)
+    {
+        return $"player{this.CurrentRoom.PlayerList.IndexOf(player) + 1}";
+    }
+    #endregion
+
+    public override Task OnConnected()
+    {
+        var player = new Player(Context.ConnectionId, Context.User.Identity.Name);
+        if (!ClientsInfo.List.Contains(player))
+        {
+            ClientsInfo.List.Add(player);
+        }
+        return null;
+    }
 }

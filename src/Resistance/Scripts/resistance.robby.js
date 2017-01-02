@@ -89,13 +89,11 @@
         }
     };
 
-    robby.client.dialogupdate = function (roomname, player, canstart) {
+    robby.client.dialogupdate = function (roomname, players, canstart) {
         $("#roomdialogtitle").text(roomname);
-        $("#roomdialogmembercount").text(player.length);
+        $("#roomdialogmembercount").text(players.length);
         $("#roomdialogplayerlist").empty();
-        $.each(player, function (i, p) {
-            //var img = $('<img src="~/Image/Component/Common/Player_img.png" alt="'+ p.Name +'" class="img-thumbnail thumbnailsize" />');
-            //img.append(p.Name);
+        $.each(players, function (i, p) {
             $("#roomdialogplayerlist").append('<div class="thumbnailcontainer"><div><img src="/Image/Component/Common/Player_img.png" alt="'
                 + p.Name + '" class="img-thumbnail thumbnailsize" /></div>' + p.Name + '</div>');
         });
@@ -116,8 +114,8 @@
         $("#startgame").prop("disabled", !canstart);
     };
 
-    robby.client.gameStart = function () {
-        window.location.href = "Game";
+    robby.client.gameStart = function (roomname) {
+        window.location.href = "GameStart?roomName=" + roomname;
     };
 
     // クライアントからサーバへのRPC

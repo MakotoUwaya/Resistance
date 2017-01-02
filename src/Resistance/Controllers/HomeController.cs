@@ -25,7 +25,13 @@ namespace Resistance.Controllers
 
         public ActionResult Game()
         {
-            return View();
+            return RedirectToAction("Robby");
+        }
+
+        public ActionResult GameStart(string roomName)
+        {
+            var robby = new RobbyViewModel() { RoomName = roomName};
+            return View("Game", robby);
         }
     }
 }

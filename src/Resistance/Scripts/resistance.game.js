@@ -6,6 +6,12 @@ function bringToFlont(id) {
 }
 
 $(function () {
+    // 同期を取るルーム名を指定 ここではURL
+    $.connection.hub.qs = { room: $("#hiddenroomname").val() };
+
+    // デバッグ用にログを出力
+    $.connection.hub.logging = true;
+
     var gameHub = $.connection.gameHub,
 		messageFrequency = 10,
 		updateRate = 1000 / messageFrequency,
@@ -21,13 +27,23 @@ $(function () {
 		currentselectcount = 0;
 
     gameHub.client.showPlayerRole = function (players) {
-        for (var i = 0, len = players.length; i < len; i++) {
-            if (players[i].Role === 2) {
-                var currentColor = $("#player" + (i + 1) + "icon").css('background-Color');
-                $("#player" + (i + 1) + "icon").animate({ backgroundColor: 'red' }, 900);
-                $("#player" + (i + 1) + "icon").animate({ backgroundColor: currentColor }, 100);
-            }
-        }
+
+        $("#spylist").empty();
+        if (players.length === 0) {
+            $("#rolename").text("レジスタンス");
+            $("#roleimage").attr("src", "/Image/Component/Common/resistance_img.png");
+            $("#roleimage").attr("alt", "resistance");
+        } else {
+            $("#rolename").text("スパイ");
+            $("#roleimage").attr("src", "/Image/Component/Common/spy_img.png");
+            $("#roleimage").attr("alt", "spy");
+        }     
+        
+        $.each(players, function (i, p) {
+            $("#spylist").append('<li>' + p.Name + '</li>');
+        });
+
+        $('#rolemodal').modal('show');
     };
 
     gameHub.client.resistanceWins = function (point) {
@@ -238,8 +254,8 @@ $(function () {
     });
 
     $.connection.hub.start().done(function () {
-        gameHub.server.playerInitialization($(window).width() - windowoffcet, $(window).height() - windowoffcet);
-        gameHub.server.setLeader();
+        gameHub.server.playerInitialization($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
+        //gameHub.server.setLeader();
 
         var playerlist = $(".playericon");
         $.each(playerlist, function (i, element) {
@@ -285,13 +301,6 @@ $(function () {
                         gameHub.server.startVote($(element).children('div').text());
                     }
                 });
-            }
-            return false;
-        });
-
-        $(".playername").bind('tap', function (sender) {
-            if (sender.currentTarget.innerText === $.cookie('username')) {
-                gameHub.server.showPlayerRole();
             }
             return false;
         });
