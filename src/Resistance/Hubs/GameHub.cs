@@ -131,16 +131,20 @@ public class GameHub : Hub
     {
         Groups.Add(Context.ConnectionId, Context.QueryString["room"]);
         this.CurrentRoom = RoomInfo.Get(Context.QueryString["room"]);
-        this.CurrentGame = this.CurrentRoom.RoomGame;        
+        this.CurrentGame = this.CurrentRoom.RoomGame;
 
-        var name = Context.User.Identity.Name;
-        var positionList = new List<ShapeModel>();
+        this.PlayerPositionReset(width, height);
+        this.ShowPlayerRole();
+    }
 
+    public void PlayerPositionReset(int width, int height)
+    {
+        //var positionList = new List<ShapeModel>();
         var memberList = this.CurrentRoom.PlayerList.ToList();
         var moveList = new List<Player>();
         for (int i = 0; i < memberList.Count; i++)
         {
-            if (memberList[i].Name == name)
+            if (memberList[i].Name == Context.User.Identity.Name)
             {
                 break;
             }
@@ -148,11 +152,6 @@ public class GameHub : Hub
             {
                 moveList.Add(memberList[i]);
             }
-
-            //if (memberList[i].CurrentVote.HasValue)
-            //{
-            //    Clients.All.VoteUpdate($"player{i + 1}", memberList[i].CurrentVote.Value ? "true" : "false");
-            //}
         }
 
         for (int i = 0; i < moveList.Count; i++)
@@ -277,10 +276,6 @@ public class GameHub : Hub
             default:
                 break;
         }
-
-        // 役割確認
-        // スパイの場合はスパイのプレイヤー名を赤色で3秒間表示
-        this.ShowPlayerRole();
     }
 
     public void ShowPlayerRole()

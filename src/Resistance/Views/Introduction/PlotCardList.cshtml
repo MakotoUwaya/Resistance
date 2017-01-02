@@ -28,7 +28,7 @@
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#drawcard">
-    陰謀カード取得
+    陰謀カード取得サンプル
 </button>
 
 <!-- Modal -->
@@ -53,22 +53,5 @@
         </div>
     </div>
 </div>
-
-<button id="changerole" class="btn btn-default">役割変更</button>
-
-@section scripts {
-    <script>
-        $(window).on('load', function () {
-            //$('#drawcard').modal('show');
-        });
-
-        $("#changerole").click( function () {
-            $("#rolename").text('レジスタンス');
-            $("#roleimage").attr('src', '/Image/Component/Common/resistance_img.png');
-            $('#myModal').modal('show');
-        });
-
-    </script>   
-}
 
 

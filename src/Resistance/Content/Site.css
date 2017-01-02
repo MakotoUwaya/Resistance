@@ -234,24 +234,6 @@ textarea {
     right: 20px;
 }
 
-#spylist {
-    list-style: none;
-    position: relative;
-    left: 50%;
-    float: left;
-}
-
-#spylist li {
-    background-color: black;
-    color: white;
-    float: left;
-    width: auto;
-    position: relative;
-    left: -50%;
-    float: left;
-    margin: 20px;
-}
-
 /* Common */
 .dialogbody {
     position: relative;

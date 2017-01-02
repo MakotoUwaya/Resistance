@@ -1,4 +1,4 @@
-﻿var windowoffcet = 16;
+﻿var windowoffcet = 30;
 
 function bringToFlont(id) {
     var v = $('#' + id);
@@ -40,7 +40,7 @@ $(function () {
         }     
         
         $.each(players, function (i, p) {
-            $("#spylist").append('<li>' + p.Name + '</li>');
+            $("#spylist").append('<a class="btn btn-default" role="button">' + p.Name + '</a>');
         });
 
         $('#rolemodal').modal('show');
@@ -352,7 +352,7 @@ $(function () {
             }
             timer = setTimeout(function () {
                 $('#wrap').css('height', $(window).height() - windowoffcet);
-                gameHub.server.playerInitialization($(window).width() - windowoffcet, $(window).height() - windowoffcet);
+                gameHub.server.playerPositionReset($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
             }, 300);
         });
     });
