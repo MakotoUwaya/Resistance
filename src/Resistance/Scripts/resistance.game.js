@@ -23,7 +23,6 @@ $(function () {
 		moved = false,
 		isleader = false,
         isvoted = false,
-        maxselectcount = 0,
 		currentselectcount = 0;
 
     gameHub.client.showPlayerRole = function (players) {
@@ -78,11 +77,10 @@ $(function () {
     };
 
     gameHub.client.setLeader = function (leadername, selectCount) {
-        isleader = leadername === $("#hiddenroomname").val();
-        isvoted = false;
-        maxselectcount = selectCount;
+        isleader = leadername === $("#hiddenplayername").val();
+        isvoted = false;        
 
-        // 状態の初期化
+        // TODO: 状態の初期化
         $("#votebutton").css('display', 'none');
         $("#revotebutton").css('display', 'none');
         $("#missionstartbutton").css('display', 'none');
@@ -112,29 +110,17 @@ $(function () {
             }
         });
 
-        //var playerlist = $(".playericon");
-        //$.each(playerlist, function (i, element) {
-        //$(element).bind('tap', function () {
-        //    var name = $(element).children('div').text();
-        //    if (name === $.cookie('username')) {
-        //        var img = $(element).children('img');
-        //        img.css('opacity', '0.8');
-        //        img.css('filter', 'alpha(opacity=80)');
-        //        var span = $(element).children('span');
-        //        span.css('background', 'url(../Image/Component/Jp/OK.png)');
-        //        span.css('opacity', '1.0');
-        //        img.css('filter', 'alpha(opacity=100)');
-        //    }
-        //    return false;
-        //});
-        //});
-
-        if (isleader) {
-            $("#selectbutton").css('display', 'inline');
-            $("#selectimage").css('opacity', '0.4');
+        if (isleader) {           
+            $("#leadername").text("あなた");
         } else {
-            $("#selectbutton").css('display', 'none');
+            $("#missionselectbutton").css('display', 'none');
+            $("#leadername").text(leadername);
         }
+
+        $("#missionselectbutton").prop("disabled", !isleader);
+        $("#missionmembercount").text(selectCount);
+        $("#leaderimage").attr("src", "/Image/Component/Common/Player_img.png");
+        $('#leadermodal').modal('show');
     };
 
     gameHub.client.updateSelectStatus = function (element, color) {
@@ -255,7 +241,12 @@ $(function () {
 
     $.connection.hub.start().done(function () {
         gameHub.server.playerInitialization($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
-        gameHub.server.setLeader();
+
+        $("#roleclosebutton").click(function () {
+            if ($("#missionmembercount").text().length === 0) {
+                gameHub.server.setLeader();
+            }
+        });
 
         var playerlist = $(".playericon");
         $.each(playerlist, function (i, element) {
@@ -263,7 +254,7 @@ $(function () {
                 if (isleader && !isvoted) {
                     var selected = $(element).children('.selected').val();
                     if (selected === 'false') {
-                        if (currentselectcount < maxselectcount) {
+                        if (currentselectcount < Number($("#missionmembercount").text())) {
                             $(element).children('.selected').val('true');
                             $(element).css('background-color', 'yellow');
                             gameHub.server.updateSelectStatus($(element).attr("id"), "yellow");
@@ -278,7 +269,7 @@ $(function () {
                     }
                 }
 
-                if (currentselectcount === maxselectcount) {
+                if (currentselectcount === Number($("#missionmembercount").text())) {
                     $("#selectimage").css('opacity', '1.0');
                 } else {
                     $("#selectimage").css('opacity', '0.4');
@@ -289,14 +280,14 @@ $(function () {
         });
 
         $("#selectimage").bind('tap', function () {
-            if (isleader && !isvoted && currentselectcount === maxselectcount) {
+            if (isleader && !isvoted && currentselectcount === Number($("#missionmembercount").text())) {
                 var playerlist = $(".playericon");
                 $.each(playerlist, function (i, element) {
                     var selected = $(element).children('.selected').val();
                     if (selected === 'true') {
                         isvoted = true;
                         gameHub.server.vote(true);
-                        $("#selectbutton").css('display', 'none');
+                        $("#missionselectbutton").css('display', 'none');
                         $("#votebutton").css('display', 'inline');
                         gameHub.server.startVote($(element).children('div').text());
                     }

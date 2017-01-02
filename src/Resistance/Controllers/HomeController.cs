@@ -30,7 +30,7 @@ namespace Resistance.Controllers
 
         public ActionResult GameStart(string roomName)
         {
-            var robby = new RobbyViewModel() { RoomName = roomName};
+            var robby = new GameViewModel() { RoomName = roomName, PlayerName = User.Identity.GetUserName() };
             return View("Game", robby);
         }
     }

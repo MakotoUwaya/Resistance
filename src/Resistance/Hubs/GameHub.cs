@@ -62,7 +62,7 @@ public class GameHub : Hub
 
     private void LeaderUpdate(string roomName)
     {
-        Clients.All.SetLeader(GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].CurrentLeader.Name,
+        Clients.Caller.SetLeader(GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].CurrentLeader.Name,
                         Rule.SelectMemberCount(RoomList[roomName].MemberCount, GameList[roomName].CurrentPhaseIndex + 1));
     }
 
