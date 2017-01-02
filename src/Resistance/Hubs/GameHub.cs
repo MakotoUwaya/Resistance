@@ -30,6 +30,7 @@ public class GameHub : Hub
     public void SetLeader()
     {
         var roomName = Context.QueryString["room"];
+
         if (!SetLeaderCaller.ContainsKey(roomName))
         {
             SetLeaderCaller[roomName] = new List<string>();
@@ -147,23 +148,7 @@ public class GameHub : Hub
     #region Inititialize
     public void PlayerInitialization(int width, int height)
     {
-        var roomName = Context.QueryString["room"];
-        if (string.IsNullOrWhiteSpace(roomName))
-        {
-            // TODO:部屋名が指定されていない場合の処理
-             return;
-        }       
 
-        Groups.Add(Context.ConnectionId, roomName);
-        if (!RoomList.ContainsKey(roomName))
-        {
-            RoomList.Add(roomName, RoomInfo.Get(roomName));
-        }
-
-        if (!GameList.ContainsKey(roomName))
-        {
-            GameList.Add(roomName, RoomList[roomName].RoomGame);
-        }
 
         this.PlayerPositionReset(width, height);
         this.ShowPlayerRole();
@@ -339,6 +324,24 @@ public class GameHub : Hub
         if (!ClientsInfo.List.Contains(player))
         {
             ClientsInfo.List.Add(player);
+        }
+
+        var roomName = Context.QueryString["room"];
+        if (string.IsNullOrWhiteSpace(roomName))
+        {
+            // TODO:部屋名が指定されていない場合の処理
+            return null;
+        }
+
+        Groups.Add(Context.ConnectionId, roomName);
+        if (!RoomList.ContainsKey(roomName))
+        {
+            RoomList.Add(roomName, RoomInfo.Get(roomName));
+        }
+
+        if (!GameList.ContainsKey(roomName))
+        {
+            GameList.Add(roomName, RoomList[roomName].RoomGame);
         }
         return null;
     }

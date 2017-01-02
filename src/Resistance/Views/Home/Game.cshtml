@@ -7,7 +7,7 @@
     @Scripts.Render("~/bundles/game")
 }
 @Html.HiddenFor(m => m.RoomName, new { id = "hiddenroomname" })
-<div id="wrap">
+<div id="wrap" class="clearfix">
     <span id="score"></span>
     <!--<a href="javascript:history.back();">戻る</a>-->
 
@@ -159,8 +159,9 @@
                     <img id="roleimage" src="~/Image/Component/Common/resistance_img.png" alt="spy" class="img-responsive img-circle center-block" />
                     <div id="spylist" class="btn-group btn-group-justified" role="group">
                     </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
