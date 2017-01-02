@@ -50,7 +50,7 @@ public class GameHub : Hub
         SetLeaderCaller[roomName].Clear();
         if (GameList[roomName].JudgeConclusion)
         {
-            Clients.All.Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
+            Clients.Group(roomName).Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
             GameList[roomName] = new Game(RoomList[roomName].PlayerList);
             SetLeaderCaller.Remove(roomName);
             return;
@@ -66,10 +66,11 @@ public class GameHub : Hub
                         Rule.SelectMemberCount(RoomList[roomName].MemberCount, GameList[roomName].CurrentPhaseIndex + 1));
     }
 
-    //public void UpdateSelectStatus(string elementName, string color)
-    //{
-    //    Clients.All.UpdateSelectStatus(elementName, color);
-    //}
+    public void UpdateSelectStatus(string elementName, string color)
+    {
+        var roomName = Context.QueryString["room"];
+        Clients.Group(roomName).UpdateSelectStatus(elementName, color);
+    }
 
     //public void StartVote(string playerName)
     //{

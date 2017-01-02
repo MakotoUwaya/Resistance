@@ -35,39 +35,39 @@
 
         <h4>ゲームルーム一覧</h4>
         <hr />
-
-        <table class="table table-responsive">
-            <thead>
-                <tr>
-                    <th>ルーム名</th>
-                    <th>人数</th>
-                    <th>参加</th>
-                    <th>退出</th>
-                </tr>
-            </thead>
-            <tbody id="roomlistbody">
-                @foreach (var item in RoomInfo.List)
-                {
-                    <tr id="roomrow-@item.Name">
-                        <td>
-                            <a id="dialoglink-@item.Name" class="dialoglink btn btn-link" data-toggle="modal" data-target="#roomdialog">@item.Name</a>
-                        </td>
-                        <td>@(item.MemberCount)人</td>
-                        <td>
-                            <button type="button" id="joinroom-@item.Name" class="joinroom btn btn-default">
-                                <span class="glyphicon glyphicon-log-in"></span>
-                            </button>
-                        </td>
-                        <td>
-                            <button type="button" id="leaveroom-@item.Name" class="leaveroom btn btn-default">
-                                <span class="glyphicon glyphicon-log-out"></span>
-                            </button>
-                        </td>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ルーム名</th>
+                        <th>人数</th>
+                        <th>参加</th>
+                        <th>退出</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-
+                </thead>
+                <tbody id="roomlistbody">
+                    @foreach (var item in RoomInfo.List)
+                    {
+                        <tr id="roomrow-@item.Name">
+                            <td>
+                                <a id="dialoglink-@item.Name" class="dialoglink btn btn-link" data-toggle="modal" data-target="#roomdialog">@item.Name</a>
+                            </td>
+                            <td>@(item.MemberCount)人</td>
+                            <td>
+                                <button type="button" id="joinroom-@item.Name" class="joinroom btn btn-default">
+                                    <span class="glyphicon glyphicon-log-in"></span>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" id="leaveroom-@item.Name" class="leaveroom btn btn-default">
+                                    <span class="glyphicon glyphicon-log-out"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
         <div class="modal fade" id="roomdialog" tabindex="-1" role="dialog" aria-labelledby="roomdialogtitle" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -89,10 +89,8 @@
                 </div>
             </div>
         </div>
-
-
-
     </div>
+
     <div class="robby-right">
         <h4>メッセージ</h4>
         <ul id="chatlist" class="list-group scrollable"></ul>

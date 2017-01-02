@@ -112,12 +112,13 @@ $(function () {
 
         if (isleader) {           
             $("#leadername").text("あなた");
+            $("#missionselectbutton").css('display', 'inline');
+            $("#missionselectbutton").prop("disabled", true);
         } else {
             $("#missionselectbutton").css('display', 'none');
             $("#leadername").text(leadername);
         }
-
-        $("#missionselectbutton").prop("disabled", !isleader);
+        
         $("#missionmembercount").text(selectCount);
         $("#leaderimage").attr("src", "/Image/Component/Common/Player_img.png");
         $('#leadermodal').modal('show');
@@ -217,7 +218,7 @@ $(function () {
         window.history.back(-1);
     };
 
-    $('#wrap').css('height', $(window).height() - windowoffcet);
+    $('#wrap').css('height', $(window).height() - (windowoffcet * 3));
 
     $(document).ready(function () {
         $(".voteokngbox").hover(function () {
@@ -240,7 +241,7 @@ $(function () {
     });
 
     $.connection.hub.start().done(function () {
-        gameHub.server.playerInitialization($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
+        gameHub.server.playerInitialization($("#wrap").width() - windowoffcet, $("#wrap").height() - (windowoffcet * 2));
 
         $("#roleclosebutton").click(function () {
             if ($("#missionmembercount").text().length === 0) {
@@ -269,12 +270,7 @@ $(function () {
                     }
                 }
 
-                if (currentselectcount === Number($("#missionmembercount").text())) {
-                    $("#selectimage").css('opacity', '1.0');
-                } else {
-                    $("#selectimage").css('opacity', '0.4');
-                }
-
+                $("#missionselectbutton").prop("disabled", currentselectcount !== Number($("#missionmembercount").text()));
                 return false;
             });
         });
@@ -343,7 +339,7 @@ $(function () {
             }
             timer = setTimeout(function () {
                 $('#wrap').css('height', $(window).height() - windowoffcet);
-                gameHub.server.playerPositionReset($("#wrap").width() - windowoffcet, $("#wrap").height() - windowoffcet);
+                gameHub.server.playerPositionReset($("#wrap").width() - windowoffcet, $("#wrap").height() - (windowoffcet * 3));
             }, 300);
         });
     });
