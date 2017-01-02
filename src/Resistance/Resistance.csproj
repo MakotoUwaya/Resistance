@@ -342,6 +342,8 @@
     <Content Include="Views\Introduction\Story.cshtml" />
     <Content Include="Views\Introduction\GameRule.cshtml" />
     <Content Include="Views\Introduction\PlotCardList.cshtml" />
+    <Content Include="Views\Home\Sample.cshtml" />
+    <Content Include="Views\Home\Sample2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

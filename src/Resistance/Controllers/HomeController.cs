@@ -33,5 +33,10 @@ namespace Resistance.Controllers
             var robby = new GameViewModel() { RoomName = roomName, PlayerName = User.Identity.GetUserName() };
             return View("Game", robby);
         }
+
+        public ActionResult Sample()
+        {
+            return View();
+        }
     }
 }

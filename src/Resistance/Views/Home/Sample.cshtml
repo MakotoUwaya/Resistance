@@ -1,0 +1,189 @@
+﻿
+@{
+    ViewBag.Title = "Sample";
+}
+
+<h3>
+    <span class="label label-primary">レジスタンス <span class="badge">0</span></span> VS 
+    <span class="label label-danger">スパイ <span class="badge">0</span></span>
+</h3>
+
+<ol class="breadcrumb">
+    <li class="text-primary">Phase 1</li>
+    <li class="text-danger">Phase 2</li>
+    <li class="text-muted">Phase 3</li>
+    <li class="text-muted">Phase 4</li>
+    <li class="text-muted">Phase 5</li>
+</ol>
+
+<div class="alert alert-success" role="alert">リーダー「」によるメンバー決定を待っています．．．</div>
+@*<div class="alert alert-warning" role="alert">ミッションチームが信任されませんでした。リーダーを変更して再投票を行います。</div>
+<div class="alert alert-info" role="alert"><strong>ミッション成功！</strong> レジスタンス側の勝利です。</div>
+<div class="alert alert-danger" role="alert"><strong>ミッション成功！</strong> スパイ側の勝利です。</div>*@
+
+<div class="row">
+
+
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading playerheader">
+                <div class="clearfix">
+                    <h5 class="pull-left playerheadername"><span class="glyphicon glyphicon-user text-primary" aria-hidden="true"> </span> プレイヤー名</h5>
+                    <button type="button" class="btn btn-primary btn-sm pull-left playerbutton">ミッションメンバー決定</button>
+                    <button type="button" class="btn btn-default btn-sm pull-right playerbutton" data-toggle="modal" data-target="#votemodal">選択</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="clearfix">
+                    <img src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <img src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <div class="row pull-left">
+                        <p class="col-md-12">・持っているカードの名前</p>
+                    </div>
+                </div>
+
+                @*<table class="table">
+                    <thead>
+                        <tr>
+                            <th>ルーム名</th>
+                            <th>広さ</th>
+                            <th>@ViewBag.PriceTargetTime</th>
+                            <th>予約</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>*@
+            </div>
+
+
+
+            @*<div class="panel-footer">
+
+            </div>*@
+        </div>
+    </div>
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading playerheader">
+                <div class="clearfix">
+                    <h5 class="pull-left playerheadername">プレイヤー名</h5>
+                    <button type="button" class="btn btn-primary btn-sm pull-left playerbutton hidden">ミッションメンバー決定</button>
+                    <button type="button" class="btn btn-default btn-sm pull-right playerbutton">選択</button>
+                </div>
+            </div>
+            <div class="panel-body bg-info">
+                <div class="clearfix">
+                    <img src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <img src="~/Image/Component/Common/Question.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <div class="row pull-left">
+                        <p class="col-md-12">・持っているカードの名前</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading playerheader">
+                <div class="clearfix">
+                    <h5 class="pull-left playerheadername">プレイヤー名</h5>
+                    <button type="button" class="btn btn-default btn-sm pull-right playerbutton">選択</button>
+                </div>
+            </div>
+            <div class="panel-body bg-info">
+                <div class="clearfix">
+                    <img src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <img src="~/Image/Component/Common/Question.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <div class="row pull-left">
+                        <p class="col-md-12">・持っているカードの名前</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading playerheader">
+                <div class="clearfix">
+                    <h5 class="pull-left playerheadername">プレイヤー名</h5>
+                    <button type="button" class="btn btn-default btn-sm pull-right playerbutton">選択</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="clearfix">
+                    <img src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <img src="~/Image/Component/Common/Question.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <div class="row pull-left">
+                        <p class="col-md-12">・持っているカードの名前</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading playerheader">
+                <div class="clearfix">
+                    <h5 class="pull-left playerheadername">プレイヤー名</h5>
+                    <button type="button" class="btn btn-default btn-sm pull-right playerbutton">選択</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="clearfix">
+                    <img src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <img src="~/Image/Component/Common/Question.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                    <div class="row pull-left">
+                        <p class="col-md-12">・持っているカードの名前</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="votemodal" tabindex="-1" role="dialog" aria-labelledby="votemodaltitle" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="votemodaltitle">ミッションチーム投票</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p>
+                    ミッションメンバーは以下の<span id="missionmembercount"></span>人です。<br />
+                    「信任」・「不信任」を表明してください。
+                </p>
+                <div class="thumbnaillist">
+                    <div class="thumbnailcontainer">
+                        <figure class="playerdialog pull-left">
+                            <img src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p>プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div class="thumbnailcontainer">
+                        <figure class="playerdialog pull-left">
+                            <img src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p>プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div class="thumbnailcontainer">
+                        <figure class="playerdialog pull-left">
+                            <img src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p>プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <div id="spylist" class="btn-group btn-group-justified" role="group">
+                        <button type="button" class="btn btn-primary" role="group" data-dismiss="modal">信任</button>
+                        <button type="button" class="btn btn-danger" role="group" data-dismiss="modal">不信任</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

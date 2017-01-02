@@ -217,11 +217,7 @@ textarea {
 
 
 /* Robby */
-#roomdialogplayerlist {
-    position: relative;
-    left: 50%;
-    float: left;
-}
+
 
 /* Game */
 .rolebutton {
@@ -230,10 +226,28 @@ textarea {
     right: 20px;
 }
 
+.playerheader {
+    padding: 0 15px 0 0;
+}
+
+.playerheadername {
+    margin: 10px 15px;
+}
+
+.playerbutton {
+    margin: 5px;
+}
+
 /* Common */
 .dialogbody {
     position: relative;
     overflow: hidden;
+}
+
+.thumbnaillist {
+    position: relative;
+    left: 50%;
+    float: left;
 }
 
 .thumbnailcontainer {
@@ -243,9 +257,38 @@ textarea {
     margin: 1px;
 }
 
+.playerdialog {
+    position:relative;
+}
+
+.playerdialogname {
+    position: absolute;
+    bottom: 20%;
+    color: white;
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 600px;
+    padding: 5px 0;
+}
+
+.playerdialogname p {
+    margin: 0;
+    padding: 0 5px;
+    text-align: center;
+}
+
 .thumbnailsize {
     max-width: 110px;
     max-height: 110px;
+    margin: 10px 30px;
+}
+
+
+.thumbnailminisize {
+    max-width: 75px;
+    max-height: 75px;
+    margin: 5px 10px;
 }
 
 .scrollable {
