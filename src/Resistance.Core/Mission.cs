@@ -27,17 +27,14 @@ namespace Resistance.Core
 
         public void SetBehavior( Player player, bool behavior)
         {
-            if (this.Member.Contains(player))
+            var result = this.Result.Where(r => r.TargetPlayer == player).SingleOrDefault();
+            if (result == null)
             {
-                var result = this.Result.Where(r => r.TargetPlayer == player).SingleOrDefault();
-                if (result == null)
-                {
-                    this.Result.Add(new MissionResult(player, behavior));
-                }
-                else
-                {
-                    result.IsTrue = behavior;
-                }
+                this.Result.Add(new MissionResult(player, behavior));
+            }
+            else
+            {
+                result.IsTrue = behavior;
             }
         }
 

@@ -68,10 +68,12 @@ namespace Resistance.Core
             }
         }
 
-        public bool JodgeVote()
+        public bool JodgeVote
         {
-            return this.PhaseVote[this.CurrentVoteIndex] == null;
+            get
+            {
+                return this.PhaseVote[this.CurrentVoteIndex] == null;
+            }
         }
-
     }
 }

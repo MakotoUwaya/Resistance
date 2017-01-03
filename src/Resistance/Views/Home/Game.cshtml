@@ -12,7 +12,7 @@
 <nav class="navbar navbar-default navbar-fixed-top gameinfo">
     <div class="container">
         <h3>
-            <span class="label label-primary">レジスタンス <span id="resistancewincount" class="badge">0</span></span> VS
+            <span class="label label-primary">レジスタンス <span id="resistancewincount" class="badge">0</span></span>
             <span class="label label-danger">スパイ <span id="spywincount" class="badge">0</span></span>
         </h3>
 
@@ -30,6 +30,9 @@
             </button>
             <button id="leaderbutton" type="button" class="btn btn-primary pull-right rolebutton hidden">
                 メンバー決定
+            </button>
+            <button id="votebutton" type="button" class="btn btn-primary pull-right rolebutton hidden">
+                投票する
             </button>
         </div>
 
@@ -56,7 +59,7 @@
                 <div id="playerbackcolor0" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage0" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus0" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus0" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist0" class="row pull-left">
                             @*<p class="col-md-12">・持っているカードの名前</p>*@
                         </div>
@@ -79,7 +82,7 @@
                 <div id="playerbackcolor1" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage1" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus1" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus1" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist1" class="row pull-left">
                         </div>
                     </div>
@@ -101,7 +104,7 @@
                 <div id="playerbackcolor2" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage2" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus2" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus2" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist2" class="row pull-left">
                         </div>
                     </div>
@@ -123,7 +126,7 @@
                 <div id="playerbackcolor3" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage3" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus3" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus3" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist3" class="row pull-left">
                         </div>
                     </div>
@@ -145,7 +148,7 @@
                 <div id="playerbackcolor4" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage4" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus4" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus4" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist4" class="row pull-left">
                         </div>
                     </div>
@@ -167,7 +170,7 @@
                 <div id="playerbackcolor5" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage5" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus5" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus5" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist5" class="row pull-left">
                         </div>
                     </div>
@@ -189,7 +192,7 @@
                 <div id="playerbackcolor6" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage6" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus6" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus6" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist6" class="row pull-left">
                         </div>
                     </div>
@@ -211,7 +214,7 @@
                 <div id="playerbackcolor7" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage7" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus7" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus7" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist7" class="row pull-left">
                         </div>
                     </div>
@@ -233,7 +236,7 @@
                 <div id="playerbackcolor8" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage8" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus8" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus8" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist8" class="row pull-left">
                         </div>
                     </div>
@@ -255,7 +258,7 @@
                 <div id="playerbackcolor9" class="panel-body">
                     <div class="clearfix">
                         <img id="playerimage9" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
-                        <img id="cardstatus9" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus9" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left cardstatus" />
                         <div id="plotcardlist9" class="row pull-left">
                         </div>
                     </div>
@@ -329,6 +332,13 @@
                     「信任」・「不信任」を表明してください。
                 </p>
                 <div class="thumbnaillist">
+                    <div id="missionmember0" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember0image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember0name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
                     <div id="missionmember1" class="thumbnailcontainer hidden">
                         <figure class="playerdialog pull-left">
                             <img id="missionmember1image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
@@ -357,12 +367,6 @@
                         </figure>
                     </div>
 
-                    <div id="missionmember5" class="thumbnailcontainer hidden">
-                        <figure class="playerdialog pull-left">
-                            <img id="missionmember5image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
-                            <figcaption class="playerdialogname"><p id="missionmember5name">プレイヤー名</p></figcaption>
-                        </figure>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">

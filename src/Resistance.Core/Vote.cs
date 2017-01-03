@@ -37,17 +37,14 @@ namespace Resistance.Core
 
         public void Set( Player player, bool approve)
         {
-            if (this.MissionMember.Contains(player))
+            var result = this.Result.Where(r => r.TargetPlayer == player).SingleOrDefault();
+            if (result == null)
             {
-                var result = this.Result.Where(r => r.TargetPlayer == player).SingleOrDefault();
-                if (result == null)
-                {
-                    this.Result.Add(new VoteResult(player, approve));
-                }
-                else
-                {
-                    result.IsTrue = approve;
-                }
+                this.Result.Add(new VoteResult(player, approve));
+            }
+            else
+            {
+                result.IsTrue = approve;
             }
         }
 

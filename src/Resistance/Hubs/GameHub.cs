@@ -119,22 +119,40 @@ public class GameHub : Hub
 
         if (phase.IsMissionMemberFull)
         {
+            phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
             Clients.Group(roomName).StartVote(phase.MissionMember);
         }
     }
 
-    //public void Vote(bool ok)
-    //{
-    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
-    //    GameStatus.Info.Members[index].CurrentVote = ok;
+    public void PlayerVote()
+    {
+        var roomName = Context.QueryString["room"];
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
 
-    //    Clients.All.VoteUpdate($"player{index + 1}", ok ? "true" : "false");
-    //    if (GameStatus.Info.IsCompleteVote())
-    //    {
-    //        var voteResult = GameStatus.Info.Vote(GameStatus.Info.Members.Where(m => m.CurrentVote.Value).Count());
-    //        Clients.All.VoteComplete(voteResult);
-    //    }
-    //}
+        if (phase.IsMissionMemberFull && phase.JodgeVote)
+        {
+            Clients.Caller.StartVote(phase.MissionMember);
+        }
+    }
+
+    public void SendVote(bool ok)
+    {
+        var roomName = Context.QueryString["room"];
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
+        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+
+        var player = vote.PlayerList.Where(p => p.Name == Context.User.Identity.Name).SingleOrDefault();
+        var index = vote.PlayerList.IndexOf(player);
+        vote.Set(player, ok);
+
+        Clients.Group(roomName).VoteUpdate(index, ok);
+        if (vote.IsConclusion)
+        {
+            Clients.Group(roomName).VoteComplete(vote.IsApprove);
+        }
+    }
 
     //public void Revote()
     //{

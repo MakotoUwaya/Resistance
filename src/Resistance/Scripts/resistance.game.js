@@ -60,21 +60,6 @@ $(function () {
 
     // リーダーの設定
     gameHub.client.setLeader = function (leadername, selectCount) {
-        //var playerlist = $(".playericon");
-
-        //$.each(playerlist, function (i, element) {
-        //    var iconelement = $(element);
-        //    iconelement.css('background-color', 'whitesmoke');
-        //    iconelement.children(".voted").text("false");
-        //    var img = iconelement.children('img');
-        //    img.css('opacity', '1.0');
-        //    img.css('filter', 'alpha(opacity=100)');
-        //    var span = iconelement.children('span');
-        //    span.css('background', '');
-        //    span.css('opacity', '0.0');
-        //    img.css('filter', 'alpha(opacity=0)');
-        //});
-
         if (leadername === $("#hiddenplayername").val()) {
             $(".leadername").text("あなた");
 
@@ -90,29 +75,26 @@ $(function () {
                         var panelid = $(this).attr('id').replace(/selectbutton/g, '');
 
 
-                        if ($("#playerbackcolor" + panelid).hasClass("bg-primary")) {
+                        if ($("#playerbackcolor" + panelid).hasClass("bg-info")) {
                             currentselectcount--;
-                            $("#playerbackcolor" + panelid).removeClass("bg-primary");
+                            $("#playerbackcolor" + panelid).removeClass("bg-info");
                         } else {
                             if (currentselectcount < maxselectcount) {
                                 currentselectcount++;
-                                $("#playerbackcolor" + panelid).addClass("bg-primary")
+                                $("#playerbackcolor" + panelid).addClass("bg-info")
                             }                            
                         }                       
-                        gameHub.server.updateSelectStatus("playerbackcolor" + panelid, $("#playerbackcolor" + panelid).hasClass("bg-primary"));
+                        gameHub.server.updateSelectStatus("playerbackcolor" + panelid, $("#playerbackcolor" + panelid).hasClass("bg-info"));
 
                         // 決定ボタンの活性状態を変更
                         $("#leaderbutton").prop("disabled", !(currentselectcount === maxselectcount));                       
                     });
+
+
                     $("#selectbutton" + num).removeClass("hidden");
 
                     if (leadername === $("#playername" + num).text()) {
                         leaderindex = num;
-
-                        // リーダーボタンにメソッドをセット
-                        $("#leaderbutton").click(function () {
-                            gameHub.server.startVote();
-                        });
 
                         $("#leaderbutton").removeClass("hidden");
                         $("#leader" + num).removeClass("hidden");
@@ -140,7 +122,7 @@ $(function () {
     gameHub.client.resistanceWins = function (point) {
         document.title = point;
         $("#score").text(point);
-        $("#missionresultimage").attr("src", "../Image/Component/Jp/missionsuccess.png");
+        $("#missionresultimage").attr("src", "/Image/Component/Jp/missionsuccess.png");
         $("#missionresultbutton").css('display', 'inline');
         $("#missionbutton").css('display', 'none');
     };
@@ -148,28 +130,33 @@ $(function () {
     gameHub.client.spyWins = function (point) {
         document.title = point;
         $("#score").text(point);
-        $("#missionresultimage").attr("src", "../Image/Component/Jp/missionfailed.png");
+        $("#missionresultimage").attr("src", "/Image/Component/Jp/missionfailed.png");
         $("#missionresultbutton").css('display', 'inline');
         $("#missionbutton").css('display', 'none');
     };
 
     gameHub.client.updateSelectStatus = function (element, selected) {
         if (selected) {
-            $("#" + element).addClass("bg-primary");
+            $("#" + element).addClass("bg-info");
         } else {
-            $("#" + element).removeClass("bg-primary");
+            $("#" + element).removeClass("bg-info");
         }
     };
 
     gameHub.client.startVote = function (players) {
-        // playersでダイアログの中身を更新
-        // ダイアログの件数も忘れずに。
-        // Leaderは〇にする
-        // 何度でも再投票できるようにする
-        // callerから投票状況を問合せ、Vote可能であればPlayerリストを返す
+        $("#missionmembercount").text(players.length);
+        for (var i = 0, len = players.length; i < len; i++) {
+            $("#missionmember" + i + "image").attr("src", "/Image/Component/Common/Player_img.png");
+            $("#missionmember" + i + "image").attr("alt", players[i].Name);
+            $("#missionmember" + i + "name").text(players[i].Name);
+            $("#missionmember" + i).removeClass("hidden");
+        }
+
+        $("#votebutton").removeClass("hidden");
         $('#votemodal').modal('show');
     };
 
+    // 投票状態が確認できたら「？」マークをカードに変えていく
     gameHub.client.voteUpdate = function (playerid, ok) {
         var element = $("#" + playerid + "icon");
         element.children(".voted").text(ok);
@@ -184,26 +171,26 @@ $(function () {
     };
 
     gameHub.client.voteComplete = function (result) {
-        $("#voteokorngbutton").css('display', 'none');
-        $("#votebutton").css('display', 'none');
+        //$("#voteokorngbutton").css('display', 'none');
+        //$("#votebutton").css('display', 'none');
 
-        var playerlist = $(".playericon");
-        $.each(playerlist, function (i, element) {
-            if ($(element).children('.voted').text() === 'true') {
-                var spanok = $(element).children('span');
-                spanok.css('background', 'url(../Image/Component/Jp/OK.png)');
-            }
-            else {
-                var spanng = $(element).children('span');
-                spanng.css('background', 'url(../Image/Component/Jp/NG.png)');
-            }
-        });
+        //var playerlist = $(".playericon");
+        //$.each(playerlist, function (i, element) {
+        //    if ($(element).children('.voted').text() === 'true') {
+        //        var spanok = $(element).children('span');
+        //        spanok.css('background', 'url(../Image/Component/Jp/OK.png)');
+        //    }
+        //    else {
+        //        var spanng = $(element).children('span');
+        //        spanng.css('background', 'url(../Image/Component/Jp/NG.png)');
+        //    }
+        //});
 
-        if (result) {
-            $("#missionstartbutton").css('display', 'inline');
-        } else {
-            $("#revotebutton").css('display', 'inline');
-        }
+        //if (result) {
+        //    $("#missionstartbutton").css('display', 'inline');
+        //} else {
+        //    $("#revotebutton").css('display', 'inline');
+        //}
     };
 
     gameHub.client.missionStart = function (players) {
@@ -313,31 +300,31 @@ $(function () {
             });
         });
 
-        $("#selectimage").bind('tap', function () {
-            if (isleader && !isvoted && currentselectcount === Number($("#missionmembercount").text())) {
-                var playerlist = $(".playericon");
-                $.each(playerlist, function (i, element) {
-                    var selected = $(element).children('.selected').val();
-                    if (selected === 'true') {
-                        isvoted = true;
-                        gameHub.server.vote(true);
-                        $("#missionselectbutton").css('display', 'none');
-                        $("#votebutton").css('display', 'inline');
-                        gameHub.server.startVote($(element).children('div').text());
-                    }
-                });
-            }
-            return false;
+        // リーダーの選択確定ボタン
+        $("#leaderbutton").click(function () {
+            gameHub.server.startVote();
+            $(this).addClass("hidden");
+
+            var playerlist = $(".cardstatus");
+            $.each(playerlist, function (i, element) {
+                $(element).attr("src", "/Image/Component/Common/Question.png");
+            });
+
+            // リーダーは自動的に信任する
+            $("#cardstatus" + leaderindex).attr("src", "/Image/Component/Common/OK.png");
         });
 
-        $(".voteokng").bind('tap', function (sender) {
-            gameHub.server.vote(sender.currentTarget.id === 'okimage');
-            return false;
+        // 再投票用のボタン
+        $("#votebutton").click(function () {
+            gameHub.server.playerVote();
         });
 
-        $("#revotebutton").bind('tap', function () {
-            gameHub.server.revote();
-            return false;
+        // 信任・不信任ボタン
+        $("#approvebutton").click(function () {
+            gameHub.server.sendVote(true);
+        });
+        $("#rejectbutton").click(function () {
+            gameHub.server.sendVote(false);
         });
 
         $("#missionstartbutton").bind('tap', function () {
