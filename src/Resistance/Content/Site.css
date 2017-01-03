@@ -23,10 +23,6 @@ textarea {
     max-width: 280px;
 }
 
-#wrap {
-    position: relative;
-}
-
 .playericon {
     position: absolute;
     width: 124px;
@@ -220,10 +216,13 @@ textarea {
 
 
 /* Game */
+.breadcrumb {
+    margin-bottom: 0;
+    background-color: transparent;
+}
+
 .rolebutton {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+    margin: 0 15px;
 }
 
 .playerheader {
@@ -236,6 +235,16 @@ textarea {
 
 .playerbutton {
     margin: 5px;
+}
+
+.gameinfo {
+    z-index: 1029;
+    padding-top: 50px;
+}
+
+.gamebody {
+    z-index: -1;
+    padding-top: 185px;
 }
 
 /* Common */
@@ -289,6 +298,10 @@ textarea {
     max-width: 75px;
     max-height: 75px;
     margin: 5px 10px;
+}
+
+.votedialogbutton {
+    width: 150px;
 }
 
 .scrollable {

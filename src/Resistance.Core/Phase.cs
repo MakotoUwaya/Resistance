@@ -44,9 +44,12 @@ namespace Resistance.Core
             this.CurrentLeader = player;
         }
 
-        public bool IsMissionMemberFull(int playerCount)
+        public bool IsMissionMemberFull
         {
-            return this.MissionMember.Count() == Rule.SelectMemberCount(playerCount, this.CurrentVoteIndex + 1);
+            get
+            {
+                return this.MissionMember.Count() == Rule.SelectMemberCount(this.PlayerList.Count(), this.CurrentVoteIndex + 1);
+            }
         }
 
         public void AddMissionMember(Player player)

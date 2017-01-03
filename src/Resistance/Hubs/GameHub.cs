@@ -15,18 +15,35 @@ public class GameHub : Hub
     private const int offset = 16;
     private const int cardsize = 120;
 
+    /// <summary>
+    /// 部屋リスト
+    /// </summary>
     public static Dictionary<string, Room> RoomList { get; private set; }
+
+    /// <summary>
+    /// ゲームリスト
+    /// </summary>
     public static Dictionary<string,Game> GameList { get; private set; }
 
+    /// <summary>
+    /// リーダー更新確認カウンタ
+    /// </summary>
     private static Dictionary<string, List<string>> SetLeaderCaller;
 
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
     static GameHub()
-    {
+    {       
         RoomList = new Dictionary<string, Room>();
         GameList = new Dictionary<string, Game>();
         SetLeaderCaller = new Dictionary<string, List<string>>();
     }
 
+    /// <summary>
+    /// 次フェーズのリーダー設定
+    /// 兼 ゲーム終了判定
+    /// </summary>
     public void SetLeader()
     {
         var roomName = Context.QueryString["room"];
@@ -50,6 +67,7 @@ public class GameHub : Hub
         SetLeaderCaller[roomName].Clear();
         if (GameList[roomName].JudgeConclusion)
         {
+            // ゲーム終了
             Clients.Group(roomName).Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
             GameList[roomName] = new Game(RoomList[roomName].PlayerList);
             SetLeaderCaller.Remove(roomName);
@@ -60,32 +78,50 @@ public class GameHub : Hub
         this.LeaderUpdate(roomName);
     }
 
+    /// <summary>
+    /// リーダーの変更ダイアログを表示
+    /// </summary>
+    /// <param name="roomName"></param>
     private void LeaderUpdate(string roomName)
     {
         Clients.Caller.SetLeader(GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].CurrentLeader.Name,
                         Rule.SelectMemberCount(RoomList[roomName].MemberCount, GameList[roomName].CurrentPhaseIndex + 1));
     }
 
-    public void UpdateSelectStatus(string elementName, string color)
+    /// <summary>
+    /// プレイヤーの選択状態を更新
+    /// </summary>
+    /// <param name="elementName"></param>
+    /// <param name="color"></param>
+    public void UpdateSelectStatus(string elementName, bool selected)
     {
         var roomName = Context.QueryString["room"];
-        Clients.Group(roomName).UpdateSelectStatus(elementName, color);
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
+        var playerIndex = int.Parse(elementName.Last().ToString());
+
+        Clients.Group(roomName).UpdateSelectStatus(elementName, selected);
+        if (selected)
+        {
+            phase.AddMissionMember(GameList[roomName].PlayerList[playerIndex]);
+        }
+        else
+        {
+            phase.RemoveMissionMember(GameList[roomName].PlayerList[playerIndex]);
+        }
     }
 
-    //public void StartVote(string playerName)
-    //{
-    //    // リーダー設定送信の重複送信防止機構を解除する
-    //    this.IsSetLeader = false;
+    public void StartVote()
+    {
+        var roomName = Context.QueryString["room"];
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
 
-    //    var player = RoomInfo.Primary.PlayerList.Where(m => m.Name == playerName).SingleOrDefault();
-    //    if (player != null)
-    //    {
-    //        if (GameStatus.Info.AddSelectPlayer(player))
-    //        {
-    //            Clients.AllExcept(Context.ConnectionId).StartVote();
-    //        }
-    //    }
-    //}
+        if (phase.IsMissionMemberFull)
+        {
+            Clients.Group(roomName).StartVote(phase.MissionMember);
+        }
+    }
 
     //public void Vote(bool ok)
     //{
@@ -147,160 +183,20 @@ public class GameHub : Hub
     //}
 
     #region Inititialize
-    public void PlayerInitialization(int width, int height)
+    /// <summary>
+    /// ゲームの初期化
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    public void Initialization()
     {
-
-
-        this.PlayerPositionReset(width, height);
-        this.ShowPlayerRole();
-    }
-
-    public void PlayerPositionReset(int width, int height)
-    {
+        // ゲームを初期化する処理はここにまとめる
         var roomName = Context.QueryString["room"];
 
-        //var positionList = new List<ShapeModel>();
-        var memberList = RoomList[roomName].PlayerList.ToList();
-        var moveList = new List<Player>();
-        for (int i = 0; i < memberList.Count; i++)
-        {
-            if (memberList[i].Name == Context.User.Identity.Name)
-            {
-                break;
-            }
-            else
-            {
-                moveList.Add(memberList[i]);
-            }
-        }
-
-        for (int i = 0; i < moveList.Count; i++)
-        {
-            memberList.Remove(moveList[i]);
-        }
-        memberList.AddRange(moveList);
-
-        width -= offset;
-        height -= offset;
-
-        switch (RoomList[roomName].MemberCount)
-        {
-            case 5:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-                break;
-
-            case 6:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-                break;
-
-            case 7:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.7) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.3) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.4) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-                break;
-
-            case 8:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.7) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[5]), memberList[5].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.5) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.3) - (cardsize * 0.5), Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-                break;
-
-            case 9:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.75) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[4]), memberList[4].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.25) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
-                break;
-
-            case 10:
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = height - cardsize }, GetIndex(memberList[0]), memberList[0].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[1]), memberList[1].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[2]), memberList[2].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = width - cardsize, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[3]), memberList[3].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.75) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[4]), memberList[4].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.5) - (cardsize * 0.5), Top = offset }, GetIndex(memberList[5]), memberList[5].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.1) - (cardsize * 0.5) }, GetIndex(memberList[6]), memberList[6].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.3) - (cardsize * 0.5) }, GetIndex(memberList[7]), memberList[7].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = offset, Top = (height * 0.7) - (cardsize * 0.5) }, GetIndex(memberList[8]), memberList[8].Name);
-                Clients.Caller.PositionInitialization(new ShapeModel()
-                { Left = (width * 0.25) - (cardsize * 0.5), Top = (height * 0.9) - (cardsize * 0.5) }, GetIndex(memberList[9]), memberList[9].Name);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    public void ShowPlayerRole()
-    {
-        var roomName = Context.QueryString["room"];
+        // プレイヤーの生成
+        Clients.Caller.CreatePlayer(RoomList[roomName].PlayerList);
+        
+        // プレイヤーの役割ダイアログを表示する
         Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
         if (myself != null && myself.Role == PlayerRole.Spy)
         {
@@ -312,13 +208,22 @@ public class GameHub : Hub
         }
     }
 
-    private string GetIndex(Player player)
+    /// <summary>
+    /// プレイヤーの通し番号を取得する
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    private int GetIndex(Player player)
     {
         var roomName = Context.QueryString["room"];
-        return $"player{RoomList[roomName].PlayerList.IndexOf(player) + 1}";
+        return RoomList[roomName].PlayerList.IndexOf(player) + 1;
     }
     #endregion
 
+    /// <summary>
+    /// SignalR 接続確立時に行う処理
+    /// </summary>
+    /// <returns></returns>
     public override Task OnConnected()
     {
         var player = new Player(Context.ConnectionId, Context.User.Identity.Name);

@@ -95,7 +95,7 @@
         $("#roomdialogplayerlist").empty();
         $.each(players, function (i, p) {
             $("#roomdialogplayerlist").append('<div class="thumbnailcontainer"><div><img src="/Image/Component/Common/Player_img.png" alt="'
-                + p.Name + '" class="img-thumbnail thumbnailsize" /></div>' + p.Name + '</div>');
+                + p.Name + '" class="img-thumbnail thumbnailminisize" /></div>' + p.Name + '</div>');
         });
 
         $("#startgame").prop("disabled", !canstart);

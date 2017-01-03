@@ -8,189 +8,389 @@
 }
 @Html.HiddenFor(m => m.RoomName, new { id = "hiddenroomname" })
 @Html.HiddenFor(m => m.PlayerName, new { id = "hiddenplayername" })
-<div id="wrap" class="clearfix">
-    <span id="score"></span>
-    <!--<a href="javascript:history.back();">戻る</a>-->
 
-    @*HTML5 カスタムデータ属性「data-*」にJavaScript、jQueryからアクセスする方法*@ 
-    <div id="player1icon" class="playericon">
-        <img id="player1image" class="playerimage" src="~/Image/Player/Player01.png" />
-        <span id="player1overlay" class="overlay"></span>
-        <div id="player1name" class="playername">
+<nav class="navbar navbar-default navbar-fixed-top gameinfo">
+    <div class="container">
+        <h3>
+            <span class="label label-primary">レジスタンス <span id="resistancewincount" class="badge">0</span></span> VS
+            <span class="label label-danger">スパイ <span id="spywincount" class="badge">0</span></span>
+        </h3>
+
+        <div class="row">
+            <ol class="breadcrumb col-md-5 col-xs-7">
+                <li id="phase1" class="text-primary">Phase1</li>
+                <li id="phase2" class="text-danger">Phase2</li>
+                <li id="phase3" class="text-muted">Phase3</li>
+                <li id="phase4" class="text-muted">Phase4</li>
+                <li id="phase5" class="text-muted">Phase5</li>
+            </ol>
+
+            <button type="button" class="btn btn-danger pull-right rolebutton" data-toggle="modal" data-target="#rolemodal">
+                役割表示
+            </button>
+            <button id="leaderbutton" type="button" class="btn btn-primary pull-right rolebutton hidden">
+                メンバー決定
+            </button>
         </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
+
+        <div is="usermessage" class="alert alert-success" role="alert">「<span class="leadername"></span>」によるメンバー決定を待っています．．．</div>
+        @*<div class="alert alert-warning" role="alert">ミッションチームが信任されませんでした。リーダーを変更して再投票を行います。</div>
+            <div class="alert alert-info" role="alert"><strong>ミッション成功！</strong> レジスタンス側の勝利です。</div>
+            <div class="alert alert-danger" role="alert"><strong>ミッション成功！</strong> スパイ側の勝利です。</div>*@
     </div>
+</nav>
 
-    <div id="player2icon" class="playericon">
-        <img id="player2image" class="playerimage" src="~/Image/Player/Player02.png" />
-        <span id="player2overlay" class="overlay"></span>
-        <div id="player2name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player3icon" class="playericon">
-        <img id="player3image" class="playerimage" src="~/Image/Player/Player03.png" />
-        <span id="player3overlay" class="overlay"></span>
-        <div id="player3name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player4icon" class="playericon">
-        <img id="player4image" class="playerimage" src="~/Image/Player/Player04.png" />
-        <span id="player4overlay" class="overlay"></span>
-        <div id="player4name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player5icon" class="playericon">
-        <img id="player5image" class="playerimage" src="~/Image/Player/Player05.png" />
-        <span id="player5overlay" class="overlay"></span>
-        <div id="player5name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player6icon" class="playericon">
-        <img id="player6image" class="playerimage" src="~/Image/Player/Player06.png" />
-        <span id="player6overlay" class="overlay"></span>
-        <div id="player6name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player7icon" class="playericon">
-        <img id="player7image" class="playerimage" src="~/Image/Player/Player07.png" />
-        <span id="player7overlay" class="overlay"></span>
-        <div id="player7name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player8icon" class="playericon">
-        <img id="player8image" class="playerimage" src="~/Image/Player/Player08.png" />
-        <span id="player8overlay" class="overlay"></span>
-        <div id="player8name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player9icon" class="playericon">
-        <img id="player9image" class="playerimage" src="~/Image/Player/Player09.png" />
-        <span id="player9overlay" class="overlay"></span>
-        <div id="player9name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="player10icon" class="playericon">
-        <img id="player10image" class="playerimage" src="~/Image/Player/Player10.png" />
-        <span id="player10overlay" class="overlay"></span>
-        <div id="player10name" class="playername">
-        </div>
-        <input type="hidden" class="selected" value="false" />
-        <input type="hidden" class="voted" value="false" />
-    </div>
-
-    <div id="votebutton">
-        <img id="voteimage" src="~/Image/Component/Jp/Vote.png" />
-    </div>
-
-    <button id="missionselectbutton" type="button" class="btn btn-primary">ミッションメンバーを確定する</button>
-
-    @*<div id="selectbutton">
-        <img id="selectimage" src="~/Image/Component/Jp/Select.png" />
-    </div>*@
-
-    <div id="revotebutton">
-        <img id="revoteimage" src="~/Image/Component/Jp/reselect.png" />
-    </div>
-
-    <div id="missionstartbutton">
-        <img id="missionstartimage" src="~/Image/Component/Jp/missionstart.png" />
-    </div>
-
-    <div id="missionresultbutton">
-        <img id="missionresultimage" src="~/Image/Component/Jp/missionsuccess.png" />
-    </div>
-
-    <div id="voteokorngbutton">
-        <div class="voteokngbox">
-            <img id="okimage" class="voteokng" src="~/Image/Component/Jp/OK.png" />
-        </div>
-        <div class="voteokngbox">
-            <img id="ngimage" class="voteokng" src="~/Image/Component/Jp/NG.png" />
-        </div>
-    </div>
-
-    <div id="missionbutton">
-        <div class="missionbuttonbox">
-            <img id="successimage" class="missionsuccessfail" src="~/Image/Component/Jp/Success.png" />
-        </div>
-        <div class="missionbuttonbox">
-            <img id="failimage" class="missionsuccessfail" src="~/Image/Component/Jp/Fail.png" />
-        </div>
-    </div>
-
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-danger rolebutton" data-toggle="modal" data-target="#rolemodal">
-        役割表示
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="rolemodal" tabindex="-1" role="dialog" aria-labelledby="rolemodaltitle" aria-hidden="true" data-backdrop="static">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="rolemodaltitle">役割表示</h4>
-                </div>
-                <div class="modal-body text-center dialogbody">
-                    <p>あなたの役割は「<span id="rolename">レジスタンス</span>」です。</p>
-                    <img id="roleimage" src="~/Image/Component/Common/resistance_img.png" alt="spy" class="img-responsive img-circle center-block" />
-                    <div id="spylist" class="btn-group btn-group-justified" role="group">
+<!-- Game Main Page -->
+<div class="gamebody">
+    <div id="playerlist" class="row">
+        <div id="playerpanel0" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername"><span id="leader0" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span> 
+                            <span id="playername0">プレイヤー名</span></h5>
+                        
+                        <button id="selectbutton0" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
                     </div>
-                    <div class="modal-footer">
-                        <button id="roleclosebutton" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <div id="playerbackcolor0" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage0" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus0" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist0" class="row pull-left">
+                            @*<p class="col-md-12">・持っているカードの名前</p>*@
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <div id="playerpanel1" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader1" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername1">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton1" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor1" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage1" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus1" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist1" class="row pull-left">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="leadermodal" tabindex="-1" role="dialog" aria-labelledby="leadermodaltitle" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="leadermodaltitle">リーダー確認</h4>
-                </div>
-                <div class="modal-body text-center dialogbody">
-                    <p>
-                        現在のリーダーは「<span id="leadername"></span>」です。<br />
-                        ミッションメンバーは <span id="missionmembercount"></span>人です。</p>
-                    <img id="leaderimage" src="~/Image/Component/Common/resistance_img.png" alt="leader" class="img-responsive img-circle center-block" />
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <div id="playerpanel2" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader2" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername2">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton2" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
                     </div>
+                </div>
+                <div id="playerbackcolor2" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage2" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus2" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist2" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel3" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader3" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername3">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton3" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor3" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage3" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus3" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist3" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel4" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader4" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername4">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton4" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor4" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage4" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus4" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist4" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel5" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader5" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername5">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton5" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor5" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage5" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus5" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist5" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel6" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader6" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername6">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton6" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor6" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage6" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus6" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist6" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel7" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader7" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername7">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton7" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor7" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage7" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus7" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist7" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel8" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader8" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername8">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton8" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor8" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage8" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus8" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist8" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="playerpanel9" class="col-md-6 col-xs-12 hidden">
+            <div class="panel panel-default">
+                <div class="panel-heading playerheader">
+                    <div class="clearfix">
+                        <h5 class="pull-left playerheadername">
+                            <span id="leader9" class="glyphicon glyphicon-user text-primary hidden" aria-hidden="true"> </span>
+                            <span id="playername9">プレイヤー名</span>
+                        </h5>
+                        <button id="selectbutton9" type="button" class="btn btn-default btn-sm pull-right playerbutton hidden">選択</button>
+                    </div>
+                </div>
+                <div id="playerbackcolor9" class="panel-body">
+                    <div class="clearfix">
+                        <img id="playerimage9" src="~/Image/Component/Common/Player_img.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <img id="cardstatus9" src="~/Image/Component/Common/TeamCard.png" alt="Player" class="img-responsive thumbnailminisize pull-left" />
+                        <div id="plotcardlist9" class="row pull-left">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- PlayerRole Modal -->
+<div class="modal fade" id="rolemodal" tabindex="-1" role="dialog" aria-labelledby="rolemodaltitle" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="rolemodaltitle">役割表示</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p>あなたの役割は「<span id="rolename">レジスタンス</span>」です。</p>
+                <img id="roleimage" src="~/Image/Component/Common/resistance_img.png" alt="spy" class="img-responsive img-circle center-block" />
+                <div id="spylist" class="btn-group btn-group-justified" role="group">
+                </div>
+                <div class="modal-footer">
+                    <button id="roleclosebutton" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Leader Modal -->
+<div class="modal fade" id="leadermodal" tabindex="-1" role="dialog" aria-labelledby="leadermodaltitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="leadermodaltitle">リーダー確認</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p>
+                    現在のリーダーは「<span class="leadername"></span>」です。<br />
+                    ミッションメンバーは <span id="missionmembercount"></span>人です。
+                </p>
+                <img id="leaderimage" src="~/Image/Component/Common/resistance_img.png" alt="leader" class="img-responsive img-circle center-block" />
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vote Modal -->
+<div class="modal fade" id="votemodal" tabindex="-1" role="dialog" aria-labelledby="votemodaltitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="votemodaltitle">ミッションチーム投票</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p>
+                    ミッションメンバーは以下の<span id="missionmembercount"></span>人です。<br />
+                    「信任」・「不信任」を表明してください。
+                </p>
+                <div class="thumbnaillist">
+                    <div id="missionmember1" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember1image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember1name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember2" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember2image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember2name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember3" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember3image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember3name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember4" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember4image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember4name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember5" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember5image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember5name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="approvebutton" type="button" class="btn btn-primary votedialogbutton" data-dismiss="modal">信任</button>
+                <button id="rejectbutton" type="button" class="btn btn-danger votedialogbutton" data-dismiss="modal">不信任</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
