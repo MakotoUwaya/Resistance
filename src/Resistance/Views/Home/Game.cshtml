@@ -37,8 +37,8 @@
             </button>
         </div>
 
-        <div is="usermessage" class="alert alert-success" role="alert">「<span class="leadername"></span>」によるメンバー決定を待っています．．．</div>
-        @*<div class="alert alert-warning" role="alert">ミッションチームが信任されませんでした。リーダーを変更して再投票を行います。</div>
+        <div id="usermessage" class="alert alert-success" role="alert"></div>
+        @*<div class="alert alert-warning" role="alert">ミッションメンバーが信任されませんでした。リーダーを変更して再投票を行います。</div>
             <div class="alert alert-info" role="alert"><strong>ミッション成功！</strong> レジスタンス側の勝利です。</div>
             <div class="alert alert-danger" role="alert"><strong>ミッション成功！</strong> スパイ側の勝利です。</div>*@
     </div>
@@ -305,7 +305,7 @@
             </div>
             <div class="modal-body text-center dialogbody">
                 <p>
-                    現在のリーダーは「<span class="leadername"></span>」です。<br />
+                    現在のリーダーは「<span id="leadername"></span>」です。<br />
                     ミッションメンバーは <span id="missionmembercount"></span>人です。
                 </p>
                 <img id="leaderimage" src="~/Image/Component/Common/resistance_img.png" alt="leader" class="img-responsive img-circle center-block" />

@@ -31,6 +31,11 @@ public class GameHub : Hub
     private static Dictionary<string, List<string>> SetLeaderCaller;
 
     /// <summary>
+    /// 選択更新履歴
+    /// </summary>
+    private static List<string> UpdateSelectHIstory;
+
+    /// <summary>
     /// コンストラクタ
     /// </summary>
     static GameHub()
@@ -38,6 +43,7 @@ public class GameHub : Hub
         RoomList = new Dictionary<string, Room>();
         GameList = new Dictionary<string, Game>();
         SetLeaderCaller = new Dictionary<string, List<string>>();
+        UpdateSelectHIstory = new List<string>();
     }
 
     /// <summary>
@@ -104,10 +110,15 @@ public class GameHub : Hub
         Clients.Group(roomName).UpdateSelectStatus(elementName, selected);
         if (selected)
         {
+            UpdateSelectHIstory.Add(elementName);
             phase.AddMissionMember(GameList[roomName].PlayerList[playerIndex]);
         }
         else
         {
+            if (UpdateSelectHIstory.Contains(elementName))
+            {
+                UpdateSelectHIstory.Remove(elementName);
+            }
             phase.RemoveMissionMember(GameList[roomName].PlayerList[playerIndex]);
         }
     }
@@ -120,7 +131,15 @@ public class GameHub : Hub
 
         if (phase.IsMissionMemberFull)
         {
-            phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
+            foreach (var elementName in UpdateSelectHIstory)
+            {
+                Clients.Group(roomName).UpdateSelectStatus(elementName, true);
+            }
+
+            if (phase.PhaseVote.Count() <= phase.CurrentVoteIndex)
+            {
+                phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
+            }           
             Clients.Group(roomName).StartVote(phase.MissionMember);
         }
     }
@@ -215,8 +234,9 @@ public class GameHub : Hub
 
         // プレイヤーの生成
         Clients.Caller.CreatePlayer(RoomList[roomName].PlayerList);
-        
+
         // ゲームステータスの復元
+        this.StartVote();
 
         // プレイヤーの役割ダイアログを表示する
         Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();

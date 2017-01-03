@@ -72,7 +72,7 @@ namespace Resistance.Core
         {
             get
             {
-                return this.PhaseVote[this.CurrentVoteIndex] == null;
+                return this.PhaseVote[this.CurrentVoteIndex].IsApprove == null;
             }
         }
     }

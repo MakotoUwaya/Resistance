@@ -1,8 +1,12 @@
-﻿var windowoffcet = 30;
+﻿
+function userMassage(message, type) {
+    $("#usermessage").removeClass("alert-success");
+    $("#usermessage").removeClass("alert-warning");
+    $("#usermessage").removeClass("alert-info");
+    $("#usermessage").removeClass("alert-success");
 
-function bringToFlont(id) {
-    var v = $('#' + id);
-    v.appendTo(v.parent());
+    $("#usermessage").addClass(type);
+    $("#usermessage").text(message);
 }
 
 $(function () {
@@ -60,8 +64,10 @@ $(function () {
 
     // リーダーの設定
     gameHub.client.setLeader = function (leadername, selectCount) {
+
         if (leadername === $("#hiddenplayername").val()) {
-            $(".leadername").text("あなた");
+            userMassage("ミッションメンバーを" + selectCount + "名選択してください。", "alert-success");
+            $("#leadername").text("あなた");
 
             var num = 0;
             for (num = 0; num < 10; num++) {
@@ -102,7 +108,8 @@ $(function () {
                 }
             }
         } else {
-            $(".leadername").text(leadername);
+            userMassage("ミッションメンバー：" + selectCount + "名 リーダーの選択を待機しています．．．", "alert-success");
+            $("#leadername").text(leadername);
 
             for (var k = 0; k < 10; k++) {
                 if (leadername === $("#playername" + k).text()) {
@@ -158,10 +165,14 @@ $(function () {
         });
 
         // リーダーは自動的に信任する
-        $("#cardstatus" + leaderindex).attr("src", "/Image/Component/Common/OK.png");
-
-        $('#votemodal').modal('show');
-        $("#votebutton").removeClass("hidden");
+        if ($("#playername" + leaderindex).text() === $("#hiddenplayername").val()) {
+            userMassage("ミッションメンバー：" + players.length + "名 投票の完了を待機しています．．．", "alert-success");
+            gameHub.server.sendVote(true);
+        } else {
+            userMassage("ミッションメンバー：" + players.length + "名 信任投票をしてください。", "alert-success");
+            $("#votebutton").removeClass("hidden");
+            $("#votemodal").modal("show");
+        }
     };
 
     // 投票状態が確認できたら「？」マークをカードに変えていく
@@ -264,9 +275,11 @@ $(function () {
 
         // 信任・不信任ボタン
         $("#approvebutton").click(function () {
+            userMassage("投票の完了を待機しています．．．", "alert-success");
             gameHub.server.sendVote(true);
         });
         $("#rejectbutton").click(function () {
+            userMassage("投票の完了を待機しています．．．", "alert-success");
             gameHub.server.sendVote(false);
         });
 
