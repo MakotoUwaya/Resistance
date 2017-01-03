@@ -24,7 +24,7 @@ namespace Resistance.Core
         {
             get
             {
-                return this.MissionMember.Count == this.Result.Count;
+                return this.PlayerList.Count == this.Result.Count;
             }
         }
 

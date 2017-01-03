@@ -67,14 +67,15 @@ public class GameHub : Hub
         SetLeaderCaller[roomName].Clear();
         if (GameList[roomName].JudgeConclusion)
         {
-            // ゲーム終了
+            // ゲーム終了の判定はここではないはず
             Clients.Group(roomName).Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
             GameList[roomName] = new Game(RoomList[roomName].PlayerList);
             SetLeaderCaller.Remove(roomName);
             return;
         }
 
-        GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].NextLeader();
+        // 次のリーダーを決めるのはここではないはず
+        //GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].NextLeader();
         this.LeaderUpdate(roomName);
     }
 
@@ -147,9 +148,10 @@ public class GameHub : Hub
         var index = vote.PlayerList.IndexOf(player);
         vote.Set(player, ok);
 
-        Clients.Group(roomName).VoteUpdate(index, ok);
+        Clients.Group(roomName).VoteUpdate(index);
         if (vote.IsConclusion)
         {
+            vote.Count(vote.PlayerList.Count(), gameIndex);
             Clients.Group(roomName).VoteComplete(vote.IsApprove);
         }
     }
@@ -214,6 +216,8 @@ public class GameHub : Hub
         // プレイヤーの生成
         Clients.Caller.CreatePlayer(RoomList[roomName].PlayerList);
         
+        // ゲームステータスの復元
+
         // プレイヤーの役割ダイアログを表示する
         Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
         if (myself != null && myself.Role == PlayerRole.Spy)
@@ -234,7 +238,7 @@ public class GameHub : Hub
     private int GetIndex(Player player)
     {
         var roomName = Context.QueryString["room"];
-        return RoomList[roomName].PlayerList.IndexOf(player) + 1;
+        return RoomList[roomName].PlayerList.IndexOf(player);
     }
     #endregion
 

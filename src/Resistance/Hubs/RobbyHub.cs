@@ -81,6 +81,12 @@ public class RobbyHub : Hub
 
             if (room != null)
             {
+                if (room.RoomGame.IsActive)
+                {
+                    Clients.Caller.Buzz(Context.User.Identity.Name, $"「{roomName}」はゲーム進行中です。");
+                    return;
+                }
+
                 var player = ClientsInfo.List.Where(l => l.ConnectionId == Context.ConnectionId).SingleOrDefault();
                 if (player == null)
                 {
@@ -152,7 +158,8 @@ public class RobbyHub : Hub
 
             if (room != null)
             {
-                Clients.Caller.Dialogupdate(room.Name, room.PlayerList.ToArray(), room.CanStart);
+                Clients.Caller.Dialogupdate(room.Name, room.PlayerList.ToArray(), 
+                    room.CanStart && room.PlayerList.Where(p => p.Name == Context.User.Identity.Name).Count() > 0);
             }
             else
             {
@@ -172,6 +179,12 @@ public class RobbyHub : Hub
             var room = RoomInfo.Get(roomname);
             if (room.CanStart)
             {
+                if (room.PlayerList.Where(p => p.Name == Context.User.Identity.Name).Count() == 0)
+                {
+                    Clients.Group(roomname).Buzz(Context.User.Identity.Name, "所属していないルームのゲームは開始できません。");
+                    return;
+                }
+
                 if (!room.RoomGame.IsActive)
                 {
                     room.RoomGame.IsActive = true;

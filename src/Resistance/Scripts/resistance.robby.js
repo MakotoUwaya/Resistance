@@ -108,12 +108,6 @@
         }
     };
 
-    robby.client.received = function (user, message, count, canstart) {
-        $("#chatlist").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] <br />" + message + "</li>");
-        $("#membercount").text(count);
-        $("#startgame").prop("disabled", !canstart);
-    };
-
     robby.client.gameStart = function (roomname) {
         window.location.href = "GameStart?roomName=" + roomname;
     };
