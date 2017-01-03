@@ -113,7 +113,7 @@
     };
 
     robby.client.gameStart = function (roomname) {
-        window.location.href = "GameStart?roomName=" + roomname;
+        window.location.href = "/Home/GameStart?roomName=" + roomname;
     };
 
     // クライアントからサーバへのRPC

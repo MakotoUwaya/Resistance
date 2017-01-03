@@ -151,7 +151,7 @@ $(function () {
     };
 
     gameHub.client.startVote = function (players) {
-        $("#missionmembercount").text(players.length);
+        $("#votedialogmembercount").text(players.length);
         for (var i = 0, len = players.length; i < len; i++) {
             $("#missionmember" + i + "image").attr("src", "/Image/Component/Common/Player_img.png");
             $("#missionmember" + i + "image").attr("alt", players[i].Name);
