@@ -207,6 +207,13 @@ public class RobbyHub : Hub
         }      
     }
 
+    public void Reset()
+    {
+        RoomInfo.List.Clear();
+        Clients.All.Reset();
+        Clients.Caller.Buzz(Context.User.Identity.Name, "全てのルームを削除しました。");
+    }
+
     public override Task OnConnected()
     {
         var player = new Player(Context.ConnectionId, Context.User.Identity.Name);

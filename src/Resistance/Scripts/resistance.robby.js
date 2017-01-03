@@ -13,6 +13,10 @@
         $("#chatlist").prepend("<li class=\"list-group-item\">" + formatDate(new Date(), 'MM/DD hh:mm') + " [ " + user + " ] <br />" + message + "</li>");
     };
 
+    robby.client.reset = function () {
+        $("#roomlistbody").empty();
+    };
+
     robby.client.roomUpdate = function (roomname, count, user, message) {
         var row = $("<tr></tr>", {
             "id": "roomrow-" + roomname
@@ -123,6 +127,11 @@
         $("#startgame").click(function () {
             robby.server.gameStart($("#roomdialogtitle").text());
         });
+
+        $("#resetgame").click(function () {
+            robby.server.reset();
+        });
+
     });
 });
 
