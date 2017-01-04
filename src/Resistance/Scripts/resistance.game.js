@@ -37,7 +37,6 @@ $(function () {
             //$("#leaderbutton").removeClass("hidden");
             //$("#selectbutton" + i).removeClass("hidden");
             $("#playerimage" + j).attr("src", "/Image/Component/Common/Player_img.png");
-            $("#cardstatus" + j).attr("src", "/Image/Component/Common/TeamCard.png");
             $("#plotcardlist" + j).empty();
         }
     };
@@ -120,7 +119,7 @@ $(function () {
 
         maxselectcount = selectCount;
         currentselectcount = 0;
-        $("#missionmembercount").text(selectCount);
+        $(".missionmembercount").text(selectCount);
         $("#leaderimage").attr("src", "/Image/Component/Common/Player_img.png");
         $('#leadermodal').modal('show');
     };
@@ -159,9 +158,10 @@ $(function () {
             $("#missionmember" + i).removeClass("hidden");
         }
 
-        var playerlist = $(".cardstatus");
-        $.each(playerlist, function (i, element) {
+        var cardstatuslist = $(".cardstatus");
+        $.each(cardstatuslist, function (i, element) {
             $(element).attr("src", "/Image/Component/Common/Question.png");
+            $(element).removeClass("hidden");
         });
 
         // リーダーは自動的に信任する
@@ -181,26 +181,17 @@ $(function () {
     };
 
     gameHub.client.voteComplete = function (result) {
-        //$("#voteokorngbutton").css('display', 'none');
-        //$("#votebutton").css('display', 'none');
+        if (result) {
+            userMassage("ミッションメンバー：" + players.length + "名 信任されました。ミッションを開始します。", "alert-success");
 
-        //var playerlist = $(".playericon");
-        //$.each(playerlist, function (i, element) {
-        //    if ($(element).children('.voted').text() === 'true') {
-        //        var spanok = $(element).children('span');
-        //        spanok.css('background', 'url(../Image/Component/Jp/OK.png)');
-        //    }
-        //    else {
-        //        var spanng = $(element).children('span');
-        //        spanng.css('background', 'url(../Image/Component/Jp/NG.png)');
-        //    }
-        //});
 
-        //if (result) {
-        //    $("#missionstartbutton").css('display', 'inline');
-        //} else {
-        //    $("#revotebutton").css('display', 'inline');
-        //}
+            $("#votemodal").modal("show");
+        } else {
+
+        }
+
+
+
     };
 
     gameHub.client.missionStart = function (players) {
@@ -257,7 +248,7 @@ $(function () {
         gameHub.server.initialization();
 
         $("#roleclosebutton").click(function () {
-            if ($("#missionmembercount").text().length === 0) {
+            if ($(".missionmembercount").text().length === 0) {
                 gameHub.server.setLeader();
             }
         });

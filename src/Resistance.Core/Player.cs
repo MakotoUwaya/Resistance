@@ -10,6 +10,7 @@ namespace Resistance.Core
         public string ImagePath { get; set; }
         public PlayerRole Role { get; private set; }
         public List<PlotCard> PossesionCards { get; set; }
+        public bool IsOpinionLeader { get; set; }
 
         public Player( string connectionId, string name ) : this(connectionId, name, "")
         {
@@ -22,6 +23,7 @@ namespace Resistance.Core
             this.ImagePath = ImagePath;
             this.Role = PlayerRole.None;
             this.PossesionCards = new List<PlotCard>();
+            this.IsOpinionLeader = false;
         }
 
         public void SetRole(PlayerRole role)

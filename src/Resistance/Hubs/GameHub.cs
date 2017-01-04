@@ -131,16 +131,30 @@ public class GameHub : Hub
 
         if (phase.IsMissionMemberFull)
         {
+            // 選択状態を再送信
             foreach (var elementName in UpdateSelectHIstory)
             {
                 Clients.Group(roomName).UpdateSelectStatus(elementName, true);
             }
 
+            // 投票用のインスタンスを生成
             if (phase.PhaseVote.Count() <= phase.CurrentVoteIndex)
             {
                 phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
-            }           
-            Clients.Group(roomName).StartVote(phase.MissionMember);
+            }
+                  
+            var opinionLeaders = phase.PlayerList.Where(p => p.IsOpinionLeader).Select(p => p.ConnectionId).ToArray();           
+            if (opinionLeaders.Length > 0)
+            {
+                // TODO: カード効果のある人は先に信任を表明しないといけない
+                Clients.Users(opinionLeaders).PrecedenceVote(phase.PlayerList.Where(p => p.IsOpinionLeader).ToArray());
+                Clients.Group(roomName, opinionLeaders).StartVote(phase.PlayerList.Where(p => !p.IsOpinionLeader).ToArray());
+            }
+            else
+            {
+                Clients.Group(roomName).StartVote(phase.MissionMember);
+            }
+            
         }
     }
 
@@ -170,6 +184,7 @@ public class GameHub : Hub
         Clients.Group(roomName).VoteUpdate(index);
         if (vote.IsConclusion)
         {
+            // 投票結果の集計
             vote.Count(vote.PlayerList.Count(), gameIndex);
             Clients.Group(roomName).VoteComplete(vote.IsApprove);
         }
