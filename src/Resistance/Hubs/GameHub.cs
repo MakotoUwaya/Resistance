@@ -31,6 +31,11 @@ public class GameHub : Hub
     private static Dictionary<string, List<string>> SetLeaderCaller;
 
     /// <summary>
+    /// 再投票確認カウンタ
+    /// </summary>
+    private static Dictionary<string, List<string>> ReVoteCaller;
+
+    /// <summary>
     /// 選択更新履歴
     /// </summary>
     private static List<string> UpdateSelectHIstory;
@@ -43,6 +48,7 @@ public class GameHub : Hub
         RoomList = new Dictionary<string, Room>();
         GameList = new Dictionary<string, Game>();
         SetLeaderCaller = new Dictionary<string, List<string>>();
+        ReVoteCaller = new Dictionary<string, List<string>>();
         UpdateSelectHIstory = new List<string>();
     }
 
@@ -53,6 +59,7 @@ public class GameHub : Hub
     public void SetLeader()
     {
         var roomName = Context.QueryString["room"];
+        var game = GameList[roomName];
 
         if (!SetLeaderCaller.ContainsKey(roomName))
         {
@@ -66,22 +73,19 @@ public class GameHub : Hub
 
         if (SetLeaderCaller[roomName].Count < RoomList[roomName].MemberCount)
         {
-            this.LeaderUpdate(roomName);
             return;
         }
 
         SetLeaderCaller[roomName].Clear();
-        if (GameList[roomName].JudgeConclusion)
+        if (game.JudgeConclusion)
         {
             // ゲーム終了の判定はここではないはず
-            Clients.Group(roomName).Gameover($"レジスタンス：{GameList[roomName].ResistanceWin} vs スパイ：{GameList[roomName].SpyWin}\n{(GameList[roomName].SpyWin < GameList[roomName].ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
-            GameList[roomName] = new Game(RoomList[roomName].PlayerList);
+            Clients.Group(roomName).Gameover($"レジスタンス：{game.ResistanceWin} vs スパイ：{game.SpyWin}\n{(game.SpyWin < game.ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
+            game = new Game(RoomList[roomName].PlayerList);
             SetLeaderCaller.Remove(roomName);
             return;
         }
 
-        // 次のリーダーを決めるのはここではないはず
-        //GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].NextLeader();
         this.LeaderUpdate(roomName);
     }
 
@@ -91,8 +95,9 @@ public class GameHub : Hub
     /// <param name="roomName"></param>
     private void LeaderUpdate(string roomName)
     {
-        Clients.Caller.SetLeader(GameList[roomName].GamePhase[GameList[roomName].CurrentPhaseIndex].CurrentLeader.Name,
-                        Rule.SelectMemberCount(RoomList[roomName].MemberCount, GameList[roomName].CurrentPhaseIndex + 1));
+        var game = GameList[roomName];
+        Clients.Caller.SetLeader(game.GamePhase[game.CurrentPhaseIndex].CurrentLeader.Name,
+                        Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
     }
 
     /// <summary>
@@ -190,51 +195,66 @@ public class GameHub : Hub
         }
     }
 
-    //public void Revote()
-    //{
-    //    GameStatus.Info.IncrementRevoteCount();
-    //    if (GameStatus.Info.IsOverRevote)
-    //    {
-    //        if (!GameStatus.Info.TryMission(GameStatus.Info.RevoteCount))
-    //        {
-    //            Clients.All.SpyWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        GameStatus.Info.ForwardLeader();
-    //        this.SetLeader();
-    //    }
-    //}
+    private void ReVote()
+    {
+        var roomName = Context.QueryString["room"];
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
+        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
 
-    //public void MissionStart()
-    //{
-    //    if (!this.IsMissionStart)
-    //    {
-    //        // TODO: ミッションが終わったらフラグを解除する
-    //        this.IsMissionStart = true;
-    //        Clients.All.MissionStart(GameStatus.Info.CurrentSelectPlayers);
-    //    }
-    //}
+        if (!ReVoteCaller.ContainsKey(roomName))
+        {
+            ReVoteCaller[roomName] = new List<string>();
+        }
 
-    //public void MissionUpdate(bool success)
-    //{
-    //    GameStatus.Info.CurrentSelectPlayers.Where(m => m.Name == Context.User.Identity.Name).Single().CurrentMission = success;
-    //    var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
-    //    Clients.All.MissionUpdate($"player{index + 1}");
+        if (!ReVoteCaller[roomName].Contains(Context.User.Identity.Name))
+        {
+            ReVoteCaller[roomName].Add(Context.User.Identity.Name);
+        }
 
-    //    if (GameStatus.Info.CurrentSelectPlayers.Count == GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.HasValue).Count())
-    //    {
-    //        if (GameStatus.Info.TryMission(GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.Value == false).Count()))
-    //        {
-    //            Clients.All.ResistanceWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
-    //        }
-    //        else
-    //        {
-    //            Clients.All.SpyWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
-    //        }
-    //    }
-    //}
+        if (ReVoteCaller[roomName].Count < RoomList[roomName].MemberCount)
+        {
+            return;
+        }
+
+        ReVoteCaller[roomName].Clear();        
+        phase.CurrentVoteIndex++;
+        if (Rule.MaxVoteCount <= phase.CurrentVoteIndex)
+        {
+            phase.PhaseMission.OverReject();
+            Clients.Group(roomName).SpyWins();
+        }
+
+        phase.NextLeader();
+    }
+
+    public void MissionStart()
+    {
+        var roomName = Context.QueryString["room"];
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var mission = GameList[roomName].GamePhase[gameIndex].PhaseMission;
+
+        Clients.Group(roomName).MissionStart(mission.Member.ToArray());
+    }
+
+    public void MissionUpdate(bool success)
+    {
+        GameStatus.Info.CurrentSelectPlayers.Where(m => m.Name == Context.User.Identity.Name).Single().CurrentMission = success;
+        var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
+        Clients.All.MissionUpdate($"player{index + 1}");
+
+        if (GameStatus.Info.CurrentSelectPlayers.Count == GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.HasValue).Count())
+        {
+            if (GameStatus.Info.TryMission(GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.Value == false).Count()))
+            {
+                Clients.All.ResistanceWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
+            }
+            else
+            {
+                Clients.All.SpyWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
+            }
+        }
+    }
 
     #region Inititialize
     /// <summary>
@@ -277,6 +297,7 @@ public class GameHub : Hub
     }
     #endregion
 
+    #region SignalR Connection Method
     /// <summary>
     /// SignalR 接続確立時に行う処理
     /// </summary>
@@ -308,4 +329,6 @@ public class GameHub : Hub
         }
         return null;
     }
+    #endregion
+
 }

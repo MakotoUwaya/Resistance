@@ -12,7 +12,7 @@ namespace Resistance.Core
         public Player CurrentLeader { get; private set; }
         public List<Player> MissionMember { get; }
         public List<Vote> PhaseVote { get; }
-        public int CurrentVoteIndex { get; private set; }
+        public int CurrentVoteIndex { get; set; }
         public Mission PhaseMission { get; }
 
         public Phase(List<Player> playerList, Player player)

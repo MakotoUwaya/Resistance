@@ -8,6 +8,7 @@ namespace Resistance.Core
 {
     public static class Rule
     {
+        public const int MaxVoteCount = 5;
 
         public static RoleCount GetRoleCount(int playerCount)
         {

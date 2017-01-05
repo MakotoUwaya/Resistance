@@ -333,9 +333,11 @@
                 <h4 class="modal-title" id="votemodaltitle">ミッションチーム投票</h4>
             </div>
             <div class="modal-body text-center dialogbody">
-                <p>
+                <p id="beforevotemessage">
                     ミッションメンバーは以下の<span id="missionmembercount"></span>人です。<br />
                     「信任」・「不信任」を表明してください。
+                </p>
+                <p id="aftervotemessage" class="hidden">
                 </p>
                 <div class="thumbnaillist">
                     <div id="missionmember0" class="thumbnailcontainer hidden">
@@ -377,6 +379,7 @@
             </div>
             <div class="modal-footer">
                 <button id="aftervotebutton" type="button" class="btn btn-success hidden" data-dismiss="modal">カードを使う</button>
+                <button id="votenextstepbutton" type="button" class="btn btn-success hidden" data-dismiss="modal">確認</button>
                 <button id="approvebutton" type="button" class="btn btn-primary votedialogbutton" data-dismiss="modal">信任</button>
                 <button id="rejectbutton" type="button" class="btn btn-danger votedialogbutton" data-dismiss="modal">不信任</button>
             </div>

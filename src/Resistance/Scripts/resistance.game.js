@@ -183,14 +183,34 @@ $(function () {
     gameHub.client.voteComplete = function (result) {
         if (result) {
             userMassage("ミッションメンバー：" + players.length + "名 信任されました。ミッションを開始します。", "alert-success");
-
-
-            $("#votemodal").modal("show");
+            $("#beforevotemessage").addClass("hidden");
+            $("#beforevotemessage").text("賛成多数により信任されました。<br />ミッションを開始します。");
+            $("#beforevotemessage").removeClass("hidden");
+            $("#aftervotebutton").removeClass("hidden");
+            $("#votenextstepbutton").click(function () {
+                // TODO: ミッションメンバーにダイアログを追加する処理
+                gameHub.server.missionStart();
+            });
         } else {
-
+            $("#beforevotemessage").addClass("hidden");
+            $("#beforevotemessage").text("反対多数により不信任となりました。");
+            $("#beforevotemessage").removeClass("hidden");
+            $("#aftervotebutton").addClass("hidden");
+            $("#votenextstepbutton").click(function () {
+                // TODO: リーダーを変更して次の投票を開始する処理
+                gameHub.server.reVote();
+            });
         }
+        $("#votenextstepbutton").removeClass("hidden");
+        $("#votemodal").modal("show");
+        //playerdialogname
+        //missionplayer
 
-
+        //var cardstatuslist = $(".cardstatus");
+        //$.each(cardstatuslist, function (i, element) {
+        //    $(element).attr("src", "/Image/Component/Common/Question.png");
+        //    $(element).removeClass("hidden");
+        //});
 
     };
 

@@ -25,7 +25,7 @@ namespace Resistance.Core
             this.Result = new List<MissionResult>();
         }
 
-        public void SetBehavior( Player player, bool behavior)
+        public void SetBehavior(Player player, bool behavior)
         {
             var result = this.Result.Where(r => r.TargetPlayer == player).SingleOrDefault();
             if (result == null)
@@ -38,7 +38,12 @@ namespace Resistance.Core
             }
         }
 
-        public void CarryOut( int memberCount, int phaseIndex)
+        public void OverReject()
+        {
+            this.IsSuccess = false;
+        }
+
+        public void CarryOut(int memberCount, int phaseIndex)
         {
             if (this.IsConclusion)
             {
