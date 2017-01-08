@@ -36,6 +36,16 @@ public class GameHub : Hub
     private static Dictionary<string, List<string>> ReVoteCaller;
 
     /// <summary>
+    /// ミッション開始確認カウンタ
+    /// </summary>
+    private static Dictionary<string, List<string>> MissionStartCaller;
+
+    /// <summary>
+    /// ミッション結果確認カウンタ
+    /// </summary>
+    private static Dictionary<string, List<string>> MissionReslutCaller;
+
+    /// <summary>
     /// 選択更新履歴
     /// </summary>
     private static List<string> UpdateSelectHIstory;
@@ -49,6 +59,8 @@ public class GameHub : Hub
         GameList = new Dictionary<string, Game>();
         SetLeaderCaller = new Dictionary<string, List<string>>();
         ReVoteCaller = new Dictionary<string, List<string>>();
+        MissionStartCaller = new Dictionary<string, List<string>>();
+        MissionReslutCaller = new Dictionary<string, List<string>>();
         UpdateSelectHIstory = new List<string>();
     }
 
@@ -59,24 +71,12 @@ public class GameHub : Hub
     public void SetLeader()
     {
         var roomName = Context.QueryString["room"];
-        var game = GameList[roomName];
-
-        if (!SetLeaderCaller.ContainsKey(roomName))
-        {
-            SetLeaderCaller[roomName] = new List<string>();
-        }
-
-        if (!SetLeaderCaller[roomName].Contains(Context.User.Identity.Name))
-        {
-            SetLeaderCaller[roomName].Add(Context.User.Identity.Name);
-        }
-
-        if (SetLeaderCaller[roomName].Count < RoomList[roomName].MemberCount)
+        if (!CallerResponceCheck(SetLeaderCaller, roomName, RoomList[roomName].MemberCount))
         {
             return;
         }
 
-        SetLeaderCaller[roomName].Clear();
+        var game = GameList[roomName];
         if (game.JudgeConclusion)
         {
             // ゲーム終了の判定はここではないはず
@@ -134,32 +134,33 @@ public class GameHub : Hub
         var gameIndex = GameList[roomName].CurrentPhaseIndex;
         var phase = GameList[roomName].GamePhase[gameIndex];
 
-        if (phase.IsMissionMemberFull)
+        if (!phase.IsMissionMemberFull)
         {
-            // 選択状態を再送信
-            foreach (var elementName in UpdateSelectHIstory)
-            {
-                Clients.Group(roomName).UpdateSelectStatus(elementName, true);
-            }
+            return;
+        }
 
-            // 投票用のインスタンスを生成
-            if (phase.PhaseVote.Count() <= phase.CurrentVoteIndex)
-            {
-                phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
-            }
-                  
-            var opinionLeaders = phase.PlayerList.Where(p => p.IsOpinionLeader).Select(p => p.ConnectionId).ToArray();           
-            if (opinionLeaders.Length > 0)
-            {
-                // TODO: カード効果のある人は先に信任を表明しないといけない
-                Clients.Users(opinionLeaders).PrecedenceVote(phase.PlayerList.Where(p => p.IsOpinionLeader).ToArray());
-                Clients.Group(roomName, opinionLeaders).StartVote(phase.PlayerList.Where(p => !p.IsOpinionLeader).ToArray());
-            }
-            else
-            {
-                Clients.Group(roomName).StartVote(phase.MissionMember);
-            }
-            
+        // 選択状態を再送信
+        foreach (var elementName in UpdateSelectHIstory)
+        {
+            Clients.Group(roomName).UpdateSelectStatus(elementName, true);
+        }
+
+        // 投票用のインスタンスを生成
+        if (phase.PhaseVote.Count() <= phase.CurrentVoteIndex)
+        {
+            phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
+        }
+
+        var opinionLeaders = phase.PlayerList.Where(p => p.IsOpinionLeader).Select(p => p.ConnectionId).ToArray();
+        if (opinionLeaders.Length > 0)
+        {
+            // TODO: カード効果のある人は先に信任を表明しないといけない
+            Clients.Users(opinionLeaders).PrecedenceVote(phase.PlayerList.Where(p => p.IsOpinionLeader).ToArray());
+            Clients.Group(roomName, opinionLeaders).StartVote(phase.PlayerList.Where(p => !p.IsOpinionLeader).ToArray());
+        }
+        else
+        {
+            Clients.Group(roomName).StartVote(phase.MissionMember);
         }
     }
 
@@ -198,26 +199,15 @@ public class GameHub : Hub
     private void ReVote()
     {
         var roomName = Context.QueryString["room"];
-        var gameIndex = GameList[roomName].CurrentPhaseIndex;
-        var phase = GameList[roomName].GamePhase[gameIndex];
-        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
-
-        if (!ReVoteCaller.ContainsKey(roomName))
-        {
-            ReVoteCaller[roomName] = new List<string>();
-        }
-
-        if (!ReVoteCaller[roomName].Contains(Context.User.Identity.Name))
-        {
-            ReVoteCaller[roomName].Add(Context.User.Identity.Name);
-        }
-
-        if (ReVoteCaller[roomName].Count < RoomList[roomName].MemberCount)
+        if (!CallerResponceCheck(ReVoteCaller, roomName, RoomList[roomName].MemberCount))
         {
             return;
         }
 
-        ReVoteCaller[roomName].Clear();        
+        var gameIndex = GameList[roomName].CurrentPhaseIndex;
+        var phase = GameList[roomName].GamePhase[gameIndex];
+        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+
         phase.CurrentVoteIndex++;
         if (Rule.MaxVoteCount <= phase.CurrentVoteIndex)
         {
@@ -233,6 +223,10 @@ public class GameHub : Hub
         var roomName = Context.QueryString["room"];
         var gameIndex = GameList[roomName].CurrentPhaseIndex;
         var mission = GameList[roomName].GamePhase[gameIndex].PhaseMission;
+        if (!CallerResponceCheck(MissionStartCaller, roomName, mission.Member.Count))
+        {
+            return;
+        }
 
         Clients.Group(roomName).MissionStart(mission.Member.ToArray());
     }
@@ -254,6 +248,27 @@ public class GameHub : Hub
                 Clients.All.SpyWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
             }
         }
+    }
+
+    private bool CallerResponceCheck(Dictionary<string, List<string>> dict, string roomName, int maxCount)
+    {
+        if (!dict.ContainsKey(roomName))
+        {
+            dict[roomName] = new List<string>();
+        }
+
+        if (!dict[roomName].Contains(Context.User.Identity.Name))
+        {
+            dict[roomName].Add(Context.User.Identity.Name);
+        }
+
+        if (dict[roomName].Count < maxCount)
+        {
+            return false;
+        }
+
+        dict[roomName].Clear();
+        return true;
     }
 
     #region Inititialize

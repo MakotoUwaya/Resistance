@@ -184,8 +184,8 @@ $(function () {
         if (result) {
             userMassage("ミッションメンバー：" + players.length + "名 信任されました。ミッションを開始します。", "alert-success");
             $("#beforevotemessage").addClass("hidden");
-            $("#beforevotemessage").text("賛成多数により信任されました。<br />ミッションを開始します。");
-            $("#beforevotemessage").removeClass("hidden");
+            $("#aftervotemessage").text("賛成多数により信任されました。<br />ミッションを開始します。");
+            $("#aftervotemessage").removeClass("hidden");
             $("#aftervotebutton").removeClass("hidden");
             $("#votenextstepbutton").click(function () {
                 // TODO: ミッションメンバーにダイアログを追加する処理
@@ -193,8 +193,8 @@ $(function () {
             });
         } else {
             $("#beforevotemessage").addClass("hidden");
-            $("#beforevotemessage").text("反対多数により不信任となりました。");
-            $("#beforevotemessage").removeClass("hidden");
+            $("#aftervotemessage").text("反対多数により不信任となりました。");
+            $("#aftervotemessage").removeClass("hidden");
             $("#aftervotebutton").addClass("hidden");
             $("#votenextstepbutton").click(function () {
                 // TODO: リーダーを変更して次の投票を開始する処理

@@ -12,7 +12,7 @@ namespace Resistance.Core
         public List<PlotCard> PossesionCards { get; set; }
         public bool IsOpinionLeader { get; set; }
 
-        public Player( string connectionId, string name ) : this(connectionId, name, "")
+        public Player( string connectionId, string name ) : this(connectionId, name, "/Image/Component/Common/Player_img.png")
         {
         }
 
