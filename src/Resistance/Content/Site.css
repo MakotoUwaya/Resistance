@@ -121,6 +121,11 @@ textarea {
     padding-top: 260px;
 }
 
+.missiondialogbutton {
+    width: 70%;
+    margin: 3px 0;
+}
+
 /* Common */
 .dialogbody {
     position: relative;

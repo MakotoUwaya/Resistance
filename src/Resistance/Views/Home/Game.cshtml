@@ -18,14 +18,14 @@
 
         <div class="row">
             <ol class="breadcrumb col-md-5 col-xs-7">
-                <li id="phase1" class="text-primary">Phase1</li>
-                <li id="phase2" class="text-danger">Phase2</li>
+                <li id="phase1" class="text-muted">Phase1</li>
+                <li id="phase2" class="text-muted">Phase2</li>
                 <li id="phase3" class="text-muted">Phase3</li>
                 <li id="phase4" class="text-muted">Phase4</li>
                 <li id="phase5" class="text-muted">Phase5</li>
             </ol>
 
-            <button type="button" class="btn btn-danger pull-right rolebutton" data-toggle="modal" data-target="#rolemodal">
+            <button id="checkleader" type="button" class="btn btn-danger pull-right rolebutton" data-toggle="modal" data-target="#rolemodal">
                 役割表示
             </button>
             <button id="leaderbutton" type="button" class="btn btn-primary pull-right rolebutton hidden">
@@ -334,7 +334,7 @@
             </div>
             <div class="modal-body text-center dialogbody">
                 <p id="beforevotemessage">
-                    ミッションメンバーは以下の<span id="missionmembercount"></span>人です。<br />
+                    ミッションメンバーは以下の<span class="missionmembercount"></span>人です。<br />
                     「信任」・「不信任」を表明してください。
                 </p>
                 <p id="aftervotemessage" class="hidden">
@@ -439,8 +439,8 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button id="successbutton" type="button" class="btn btn-primary btn-block missiondialogbutton" data-dismiss="modal">ミッション成功</button>
-                    <button id="failbutton" type="button" class="btn btn-primary btn-block missiondialogbutton" data-dismiss="modal">ミッション成功</button>
+                    <button id="successbutton" type="button" class="btn btn-primary center-block missiondialogbutton" data-dismiss="modal">ミッション成功</button>
+                    <button id="failbutton" type="button" class="btn btn-danger center-block missiondialogbutton" data-dismiss="modal">ミッション失敗</button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -454,7 +454,62 @@
 
 
 
+<!-- After Mission Modal -->
+<div class="modal fade" id="aftermissionmodal" tabindex="-1" role="dialog" aria-labelledby="aftermissionmodaltitle" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="aftermissionmodaltitle">ミッション完了</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p>
+                    ミッションは <span id="missionresultmessage" class="text-info"></span> しました。<br />
+                    成功<span id="successmembercount" class="text-primary"></span>人、失敗<span id="failmembercount" class="text-danger"></span>人です。
+                </p>
+                <div class="thumbnaillist">
+                    <div id="missioncard0" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missioncard0maskimage" src="~/Image/Component/Common/Question.png" class="img-responsive thumbnailsize hidden" />
+                            <img id="missioncard0image" src="~/Image/Component/Common/Player_img.png" class="img-responsive thumbnailsize hidden" />
+                        </figure>
+                    </div>
 
+                    <div id="missioncard1" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missioncard1maskimage" src="~/Image/Component/Common/Question.png" class="img-responsive thumbnailsize hidden" />
+                            <img id="missioncard1image" src="~/Image/Component/Common/Player_img.png" class="img-responsive thumbnailsize hidden" />
+                        </figure>
+                    </div>
+
+                    <div id="missioncard2" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missioncard2maskimage" src="~/Image/Component/Common/Question.png" class="img-responsive thumbnailsize hidden" />
+                            <img id="missioncard2image" src="~/Image/Component/Common/Player_img.png" class="img-responsive thumbnailsize hidden" />
+                        </figure>
+                    </div>
+
+                    <div id="missioncard3" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missioncard3maskimage" src="~/Image/Component/Common/Question.png" class="img-responsive thumbnailsize hidden" />
+                            <img id="missioncard3image" src="~/Image/Component/Common/Player_img.png" class="img-responsive thumbnailsize hidden" />
+                        </figure>
+                    </div>
+
+                    <div id="missioncard4" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missioncard4maskimage" src="~/Image/Component/Common/Question.png" class="img-responsive thumbnailsize hidden" />
+                            <img id="missioncard4image" src="~/Image/Component/Common/Player_img.png" class="img-responsive thumbnailsize hidden" />
+                        </figure>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="beforemissionbutton" type="button" class="btn btn-success hidden" data-dismiss="modal">カードを使う</button>
+                <button id="nextphasebutton" type="button" class="btn btn-default" data-dismiss="modal">次へ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

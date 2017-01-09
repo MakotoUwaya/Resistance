@@ -43,6 +43,8 @@ $(function () {
 
     // 役割ダイアログの表示
     gameHub.client.showPlayerRole = function (players) {
+        userMassage("役割の確認中です。しばらくお待ちください。", "alert-success");
+
         $("#spylist").empty();
         if (players.length === 0) {
             $("#rolename").text("レジスタンス");
@@ -70,7 +72,7 @@ $(function () {
 
             var num = 0;
             for (num = 0; num < 10; num++) {
-                if (!$("#playerpanel" + num).hasClass("hidden")) {
+                if ($("#playerpanel" + num).hasClass("hidden")) {
                     continue;
                 }
 
@@ -104,6 +106,8 @@ $(function () {
 
                     $("#leaderbutton").removeClass("hidden");
                     $("#leader" + num).removeClass("hidden");
+                } else {
+                    $("#leader" + num).addClass("hidden");
                 }
             }
         } else {
@@ -125,20 +129,30 @@ $(function () {
     };
 
 
-    gameHub.client.resistanceWins = function (point) {
-        document.title = point;
-        $("#score").text(point);
-        $("#missionresultimage").attr("src", "/Image/Component/Jp/missionsuccess.png");
-        $("#missionresultbutton").css('display', 'inline');
-        $("#missionbutton").css('display', 'none');
-    };
+    gameHub.client.statusupdate = function (status) {
+        var resistancewincount = 0,
+            spywincount = 0;
 
-    gameHub.client.spyWins = function (point) {
-        document.title = point;
-        $("#score").text(point);
-        $("#missionresultimage").attr("src", "/Image/Component/Jp/missionfailed.png");
-        $("#missionresultbutton").css('display', 'inline');
-        $("#missionbutton").css('display', 'none');
+        $.each(status, function (i, state) {
+            var index = i + 1;
+            if (status.length === index) {
+                $("#phase" + index).removeClass("text-muted");
+                $("#phase" + index).addClass("text-success");
+            } else {
+                $("#phase" + index).removeClass("text-muted");
+                $("#phase" + index).removeClass("text-success");
+                if (state.IsSuccess) {
+                    resistancewincount++;
+                    $("#phase" + index).addClass("text-primary");
+                } else {
+                    spywincount++;
+                    $("#phase" + index).addClass("text-danger");
+                }
+            }
+        });
+
+        $("#resistancewincount").text(resistancewincount);
+        $("#spywincount").text(spywincount);
     };
 
     gameHub.client.updateSelectStatus = function (element, selected) {
@@ -175,110 +189,152 @@ $(function () {
         }
     };
 
+    gameHub.client.precedenceVote = function (players) {
+        $("#votedialogmembercount").text(players.length);
+        for (var i = 0, len = players.length; i < len; i++) {
+            $("#missionmember" + i + "image").attr("src", "/Image/Component/Common/Player_img.png");
+            $("#missionmember" + i + "image").attr("alt", players[i].Name);
+            $("#missionmember" + i + "name").text(players[i].Name);
+            $("#missionmember" + i).removeClass("hidden");
+        }
+
+        var cardstatuslist = $(".cardstatus");
+        $.each(cardstatuslist, function (i, element) {
+            $(element).attr("src", "/Image/Component/Common/Question.png");
+            $(element).removeClass("hidden");
+        });
+
+        // リーダーは自動的に信任する
+        if ($("#playername" + leaderindex).text() === $("#hiddenplayername").val()) {
+            userMassage("ミッションメンバー：" + players.length + "名 投票の完了を待機しています．．．", "alert-success");
+            gameHub.server.sendVote(true);
+        } else {
+            userMassage("ミッションメンバー：" + players.length + "名 信任投票をしてください。", "alert-success");
+            $("#votebutton").removeClass("hidden");
+            $("#votemodal").modal("show");
+        }
+    };
+
     // 投票状態が確認できたら「？」マークをカードに変えていく
     gameHub.client.voteUpdate = function (index) {
         var element = $("#cardstatus" + index).attr("src", "/Image/Component/Common/TeamCard.png");
     };
 
+    // 投票結果を確認
     gameHub.client.voteComplete = function (result) {
         if (result) {
-            userMassage("ミッションメンバー：" + players.length + "名 信任されました。ミッションを開始します。", "alert-success");
-            $("#beforevotemessage").addClass("hidden");
-            $("#aftervotemessage").text("賛成多数により信任されました。<br />ミッションを開始します。");
-            $("#aftervotemessage").removeClass("hidden");
+            userMassage("信任されました。ミッションを開始します。", "alert-success");
+            $("#aftervotemessage").text("賛成多数により信任されました。\nミッションを開始します。");
             $("#aftervotebutton").removeClass("hidden");
             $("#votenextstepbutton").click(function () {
-                // TODO: ミッションメンバーにダイアログを追加する処理
+                $("#votemodal").modal("hide");
                 gameHub.server.missionStart();
             });
         } else {
-            $("#beforevotemessage").addClass("hidden");
             $("#aftervotemessage").text("反対多数により不信任となりました。");
-            $("#aftervotemessage").removeClass("hidden");
             $("#aftervotebutton").addClass("hidden");
             $("#votenextstepbutton").click(function () {
+                $("#votemodal").modal("hide");
                 // TODO: リーダーを変更して次の投票を開始する処理
                 gameHub.server.reVote();
             });
         }
+
+        userMassage("他プレイヤーの確認を待っています．．．", "alert-success");
+
+        $("#votebutton").addClass("hidden");
+        $("#beforevotemessage").addClass("hidden");
+        $("#approvebutton").addClass("hidden");
+        $("#rejectbutton").addClass("hidden");
+        
+        $("#aftervotemessage").removeClass("hidden");
         $("#votenextstepbutton").removeClass("hidden");
         $("#votemodal").modal("show");
     };
 
-    gameHub.client.missionStart = function (players) {
-
-        //var cardstatuslist = $(".cardstatus");
-        //$.each(cardstatuslist, function (i, element) {
-        //    $(element).attr("src", "/Image/Component/Common/Question.png");
-        //    $(element).removeClass("hidden");
-        //});
+    // ミッションを開始
+    gameHub.client.missionStart = function (members, memberindex) {
         var ismissionmember = false;
-        for (var i = 0, len = players.length; i < len; i++) {
-            if (players[i].Name == $("#hiddenplayername").val())
+        for (var i = 0, len = members.length; i < len; i++) {
+            if (members[i].Name == $("#hiddenplayername").val())
             {
                 ismissionmember = true;
             }
 
             $("#carryoutmember" + i + "image").attr("src", "/Image/Component/Common/Player_img.png");
-            $("#carryoutmember" + i + "image").attr("alt", players[i].Name);
-            $("#carryoutmember" + i + "name").text(players[i].Name);
+            $("#carryoutmember" + i + "image").attr("alt", members[i].Name);
+            $("#carryoutmember" + i + "name").text(members[i].Name);
             $("#carryoutmember" + i).removeClass("hidden");
         }
 
-        var playerlist = $(".playericon");
-        for (var j = 0, len = playerlist.length; j < len; j++) {
-
-        }
-
-        $("#missionstartbutton").css('display', 'none');
-
-        
-        $.each(playerlist, function (i, element) {
-            var iconelement = $(element);
-            iconelement.css('background-color', 'whitesmoke');
-            iconelement.children(".voted").text("false");
-            var img = iconelement.children('img');
-            img.css('opacity', '1.0');
-            img.css('filter', 'alpha(opacity=100)');
-            var span = iconelement.children('span');
-            span.css('background', '');
-            span.css('opacity', '0.0');
-            img.css('filter', 'alpha(opacity=0)');
-
-            var name = iconelement.children('div').text();
-            for (var j = 0, len = players.length; j < len; j++) {
-                if (players[j].Name === name) {
-                    iconelement.css('background-color', 'yellow');
-                    break;
-                }
-            }
+        var cardstatuslist = $(".cardstatus");
+        $.each(cardstatuslist, function (i, element) {
+            if (memberindex.indexOf(i) >= 0) {
+                $(element).removeClass("hidden");
+            } else {
+                $(element).addClass("hidden");
+            }         
+            $(element).attr("src", "/Image/Component/Common/Question.png");
         });
 
-        for (var i = 0, len = players.length; i < len; i++) {
-            if (players[i].Name === $.cookie('username')) {
-                $("#missionbutton").css('display', 'inline');
-                break;
-            }
+        if (ismissionmember) {
+            $("#successbutton").removeClass("hidden");
+            $("#failbutton").removeClass("hidden");
+        } else {
+            $("#successbutton").addClass("hidden");
+            $("#failbutton").addClass("hidden");
         }
+
+        $("#missionbutton").removeClass("hidden");
+        $("#beforemissionmodal").modal("show");
     };
 
-    gameHub.client.missionUpdate = function (playerid) {
-        //var element = $("#" + playerid + "icon");
-        //var img = element.children('img');
-        //img.css('opacity', '0.8');
-        //img.css('filter', 'alpha(opacity=80)');
-        //var span = element.children('span');
-        ////span.stop().animate({ background: '' }, 500);
-        //span.css('background', 'url(../Image/Component/Jp/Question.png)');
-        //span.css('opacity', '1.0');
-        //img.css('filter', 'alpha(opacity=100)');
+    // ミッション結果を確認できたら「？」マークをカードに変えていく
+    gameHub.client.missionUpdate = function (index) {
+        var element = $("#cardstatus" + index).attr("src", "/Image/Component/Common/TeamCard.png");
     };
 
+    // 投票結果を確認
+    gameHub.client.missionComplete = function (result, cards) {
+        var successcount = 0,
+            failcount = 0;       
+
+        $("#missionresultmessage").removeClass("text-info");
+        $("#aftermissionmodal").modal("show");
+
+        for (var i = 0, len = cards.length; i < len; i++) {
+            $("#missioncard" + i + "maskimage").removeClass("hidden");
+            if (cards[i].IsTrue) {
+                successcount++;
+                $("#missioncard" + i + "image").attr("src", "/Image/Component/Common/Success.png");
+            } else {
+                failcount++;
+                $("#missioncard" + i + "image").attr("src", "/Image/Component/Common/Fail.png");
+            }
+            
+            //$("#missioncard" + i).removeClass("hidden");
+            $("#missioncard" + i).delay(200 * (i + 1)).fadeIn(500);
+        }
+
+
+        if (result) {
+            $("#missionresultmessage").addClass("text-primary");
+            $("#missionresultmessage").text("成功");
+        } else {
+            $("#missionresultmessage").addClass("text-danger");
+            $("#missionresultmessage").text("失敗");
+        }
+        $("#successmembercount").text(successcount);
+        $("#failmembercount").text(failcount);
+    };
+
+    // ゲーム終了
     gameHub.client.gameover = function (message) {
         alert(message);
         //window.history.back(-1);
     };
 
+    // 接続開始
     $.connection.hub.start().done(function () {
         gameHub.server.initialization();
 
@@ -296,7 +352,7 @@ $(function () {
 
         // 再投票用のボタン
         $("#votebutton").click(function () {
-            gameHub.server.playerVote();
+            $("#votemodal").modal("show");
         });
 
         // 信任・不信任ボタン
@@ -307,6 +363,32 @@ $(function () {
         $("#rejectbutton").click(function () {
             userMassage("投票の完了を待機しています．．．", "alert-success");
             gameHub.server.sendVote(false);
+        });
+
+        // ミッション実行用のボタン
+        $("#missionbutton").click(function () {
+            $("#beforemissionmodal").modal("show");
+        });
+
+        // ミッション成功・失敗ボタン
+        $("#successbutton").click(function () {
+            userMassage("ミッションの結果を待機しています．．．", "alert-success");
+            gameHub.server.missionUpdate(true);
+        });
+        $("#failbutton").click(function () {
+            userMassage("ミッションの結果を待機しています．．．", "alert-success");
+            gameHub.server.missionUpdate(false);
+        });
+
+        // 次のフェーズへボタン
+        $("#nextphasebutton").click(function () {
+            userMassage("他プレイヤーの確認を待っています．．．", "alert-success");
+            gameHub.server.setLeader();
+        });
+
+        // UNDONE: 暫定的にリーダー確認処理を追加
+        $("#checkleader").click(function () {
+            gameHub.server.leaderCheck();
         });
     });
 });

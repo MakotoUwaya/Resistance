@@ -86,18 +86,27 @@ public class GameHub : Hub
             return;
         }
 
-        this.LeaderUpdate(roomName);
+        var status = new List<Mission>();
+        for (int i = 0; i <= game.CurrentPhaseIndex; i++)
+        {
+            status.Add(game.GamePhase[i].PhaseMission);
+        }
+
+        Clients.Group(roomName).Statusupdate(status);
+        Clients.Group(roomName).SetLeader(game.GamePhase[game.CurrentPhaseIndex].CurrentLeader.Name,
+                                            Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
     }
 
     /// <summary>
     /// リーダーの変更ダイアログを表示
     /// </summary>
     /// <param name="roomName"></param>
-    private void LeaderUpdate(string roomName)
+    private void LeaderCheck()
     {
+        var roomName = Context.QueryString["room"];
         var game = GameList[roomName];
         Clients.Caller.SetLeader(game.GamePhase[game.CurrentPhaseIndex].CurrentLeader.Name,
-                        Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
+                                            Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
     }
 
     /// <summary>
@@ -164,18 +173,6 @@ public class GameHub : Hub
         }
     }
 
-    public void PlayerVote()
-    {
-        var roomName = Context.QueryString["room"];
-        var gameIndex = GameList[roomName].CurrentPhaseIndex;
-        var phase = GameList[roomName].GamePhase[gameIndex];
-
-        if (phase.IsMissionMemberFull && phase.JodgeVote)
-        {
-            Clients.Caller.StartVote(phase.MissionMember);
-        }
-    }
-
     public void SendVote(bool ok)
     {
         var roomName = Context.QueryString["room"];
@@ -221,33 +218,116 @@ public class GameHub : Hub
     public void MissionStart()
     {
         var roomName = Context.QueryString["room"];
-        var gameIndex = GameList[roomName].CurrentPhaseIndex;
-        var mission = GameList[roomName].GamePhase[gameIndex].PhaseMission;
-        if (!CallerResponceCheck(MissionStartCaller, roomName, mission.Member.Count))
-        {
-            return;
-        }
+        var game = GameList[roomName];
+        var gameIndex = game.CurrentPhaseIndex;
+        var mission = game.GamePhase[gameIndex].PhaseMission;
+        //if (!CallerResponceCheck(MissionStartCaller, roomName, game.PlayerList.Count))
+        //{
+        //    return;
+        //}
 
-        Clients.Group(roomName).MissionStart(mission.Member.ToArray());
+        var indexList = game.PlayerList.Where(p => mission.Member.Contains(p)).Select(p => GetIndex(p));
+        Clients.Caller.MissionStart(mission.Member.ToArray(), indexList.ToArray());
     }
 
     public void MissionUpdate(bool success)
     {
-        GameStatus.Info.CurrentSelectPlayers.Where(m => m.Name == Context.User.Identity.Name).Single().CurrentMission = success;
-        var index = GameStatus.Info.Members.FindIndex(m => m.Name == Context.User.Identity.Name);
-        Clients.All.MissionUpdate($"player{index + 1}");
+        var roomName = Context.QueryString["room"];
+        var game = GameList[roomName];
+        var gameIndex = game.CurrentPhaseIndex;
+        var mission = game.GamePhase[gameIndex].PhaseMission;
 
-        if (GameStatus.Info.CurrentSelectPlayers.Count == GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.HasValue).Count())
+        var player = game.PlayerList.Where(p => p.Name == Context.User.Identity.Name).SingleOrDefault();
+        var index = game.PlayerList.IndexOf(player);
+        mission.SetBehavior(player, success);
+        Clients.Group(roomName).MissionUpdate(index);
+
+        if (!CallerResponceCheck(MissionReslutCaller, roomName, mission.Member.Count))
         {
-            if (GameStatus.Info.TryMission(GameStatus.Info.CurrentSelectPlayers.Where(m => m.CurrentMission.Value == false).Count()))
+            return;
+        }
+        
+        if (mission.IsConclusion)
+        {
+            var sortedResult = mission.Result.OrderByDescending(r => r.IsTrue).ThenBy(r => r.TargetPlayer.ConnectionId);
+            mission.CarryOut(game.PlayerList.Count, game.CurrentPhaseIndex + 1);
+            Clients.Group(roomName).MissionComplete(mission.IsSuccess, sortedResult.ToArray());
+
+            var leader = game.GamePhase[game.CurrentPhaseIndex].CurrentLeader;
+            game.GamePhase[++game.CurrentPhaseIndex] = new Phase(game.PlayerList, leader);
+            game.GamePhase[game.CurrentPhaseIndex].NextLeader();
+        }
+    }
+
+    #region Inititialize
+    /// <summary>
+    /// ゲームの初期化
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    public void Initialization()
+    {
+        // ゲームを初期化する処理はここにまとめる
+        var roomName = Context.QueryString["room"];
+        var game = GameList[roomName];
+        var gameIndex = game.CurrentPhaseIndex;
+        var phase = game.GamePhase[gameIndex];
+        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+        var mission = game.GamePhase[gameIndex].PhaseMission;
+
+        // プレイヤーの生成
+        Clients.Caller.CreatePlayer(RoomList[roomName].PlayerList);
+
+        // ステータス表示の更新
+        var status = new List<Mission>();
+        for (int i = 0; i <= game.CurrentPhaseIndex; i++)
+        {            
+            status.Add(game.GamePhase[i].PhaseMission);
+        }
+
+        Clients.Caller.Statusupdate(status);
+
+        // ゲームステータスの復元
+        if (!phase.IsMissionMemberFull)
+        {
+            // プレイヤーの役割ダイアログを表示する
+            Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
+            if (myself != null && myself.Role == PlayerRole.Spy)
             {
-                Clients.All.ResistanceWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
+                Clients.Caller.ShowPlayerRole(RoomList[roomName].PlayerList.Where(p => p.Role == PlayerRole.Spy).ToArray());
             }
             else
             {
-                Clients.All.SpyWins($"Resistance:{GameStatus.Info.ResistanceWin} vs Spy:{GameStatus.Info.SpyWin}");
+                Clients.Caller.ShowPlayerRole(new List<Player>().ToArray());
             }
         }
+        else if (!vote.IsConclusion)
+        {
+            // 投票を開始する
+            this.StartVote();
+        }
+        else if (!mission.IsConclusion)
+        {
+            // ミッションを開始する
+            this.MissionStart();
+        }
+        else if (mission.IsSuccess.HasValue)
+        {
+            // 結果を表示する
+            var sortedResult = mission.Result.OrderByDescending(r => r.IsTrue).ThenBy(r => r.TargetPlayer.ConnectionId);
+            Clients.Caller.MissionComplete(mission.IsSuccess, sortedResult.ToArray());
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーの通し番号を取得する
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    private int GetIndex(Player player)
+    {
+        var roomName = Context.QueryString["room"];
+        return RoomList[roomName].PlayerList.IndexOf(player);
     }
 
     private bool CallerResponceCheck(Dictionary<string, List<string>> dict, string roomName, int maxCount)
@@ -269,46 +349,6 @@ public class GameHub : Hub
 
         dict[roomName].Clear();
         return true;
-    }
-
-    #region Inititialize
-    /// <summary>
-    /// ゲームの初期化
-    /// </summary>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    public void Initialization()
-    {
-        // ゲームを初期化する処理はここにまとめる
-        var roomName = Context.QueryString["room"];
-
-        // プレイヤーの生成
-        Clients.Caller.CreatePlayer(RoomList[roomName].PlayerList);
-
-        // ゲームステータスの復元
-        this.StartVote();
-
-        // プレイヤーの役割ダイアログを表示する
-        Player myself = RoomList[roomName].PlayerList.Where(m => m.Name == Context.User.Identity.Name).SingleOrDefault();
-        if (myself != null && myself.Role == PlayerRole.Spy)
-        {
-            Clients.Caller.ShowPlayerRole(RoomList[roomName].PlayerList.Where(p => p.Role == PlayerRole.Spy).ToArray());
-        }
-        else
-        {
-            Clients.Caller.ShowPlayerRole(new List<Player>().ToArray());
-        }
-    }
-
-    /// <summary>
-    /// プレイヤーの通し番号を取得する
-    /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    private int GetIndex(Player player)
-    {
-        var roomName = Context.QueryString["room"];
-        return RoomList[roomName].PlayerList.IndexOf(player);
     }
     #endregion
 

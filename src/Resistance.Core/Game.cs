@@ -10,7 +10,7 @@ namespace Resistance.Core
     {
         public List<Player> PlayerList { get; private set; }
         public bool IsActive { get; set; } = false;
-        public int CurrentPhaseIndex { get; private set; }
+        public int CurrentPhaseIndex { get; set; }
         public List<Phase> GamePhase { get; private set; }
         public int ResistanceWin
         {
