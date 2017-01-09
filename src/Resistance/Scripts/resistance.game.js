@@ -71,39 +71,39 @@ $(function () {
             var num = 0;
             for (num = 0; num < 10; num++) {
                 if (!$("#playerpanel" + num).hasClass("hidden")) {
+                    continue;
+                }
 
-                    // 決定ボタンを非活性にする
-                    $("#leaderbutton").prop("disabled", true);
+                // 決定ボタンを非活性にする
+                $("#leaderbutton").prop("disabled", true);
 
-                    // 選択ボタンにメソッドをセット
-                    $("#selectbutton" + num).click(function () {
-                        var panelid = $(this).attr('id').replace(/selectbutton/g, '');
-
-
-                        if ($("#playerbackcolor" + panelid).hasClass("bg-info")) {
-                            currentselectcount--;
-                            $("#playerbackcolor" + panelid).removeClass("bg-info");
-                        } else {
-                            if (currentselectcount < maxselectcount) {
-                                currentselectcount++;
-                                $("#playerbackcolor" + panelid).addClass("bg-info")
-                            }                            
-                        }                       
-                        gameHub.server.updateSelectStatus("playerbackcolor" + panelid, $("#playerbackcolor" + panelid).hasClass("bg-info"));
-
-                        // 決定ボタンの活性状態を変更
-                        $("#leaderbutton").prop("disabled", !(currentselectcount === maxselectcount));                       
-                    });
+                // 選択ボタンにメソッドをセット
+                $("#selectbutton" + num).click(function () {
+                    var panelid = $(this).attr('id').replace(/selectbutton/g, '');
 
 
-                    $("#selectbutton" + num).removeClass("hidden");
-
-                    if (leadername === $("#playername" + num).text()) {
-                        leaderindex = num;
-
-                        $("#leaderbutton").removeClass("hidden");
-                        $("#leader" + num).removeClass("hidden");
+                    if ($("#playerbackcolor" + panelid).hasClass("bg-info")) {
+                        currentselectcount--;
+                        $("#playerbackcolor" + panelid).removeClass("bg-info");
+                    } else {
+                        if (currentselectcount < maxselectcount) {
+                            currentselectcount++;
+                            $("#playerbackcolor" + panelid).addClass("bg-info")
+                        }
                     }
+                    gameHub.server.updateSelectStatus("playerbackcolor" + panelid, $("#playerbackcolor" + panelid).hasClass("bg-info"));
+
+                    // 決定ボタンの活性状態を変更
+                    $("#leaderbutton").prop("disabled", !(currentselectcount === maxselectcount));
+                });
+
+                $("#selectbutton" + num).removeClass("hidden");
+
+                if (leadername === $("#playername" + num).text()) {
+                    leaderindex = num;
+
+                    $("#leaderbutton").removeClass("hidden");
+                    $("#leader" + num).removeClass("hidden");
                 }
             }
         } else {
@@ -203,21 +203,36 @@ $(function () {
         }
         $("#votenextstepbutton").removeClass("hidden");
         $("#votemodal").modal("show");
-        //playerdialogname
-        //missionplayer
+    };
+
+    gameHub.client.missionStart = function (players) {
 
         //var cardstatuslist = $(".cardstatus");
         //$.each(cardstatuslist, function (i, element) {
         //    $(element).attr("src", "/Image/Component/Common/Question.png");
         //    $(element).removeClass("hidden");
         //});
+        var ismissionmember = false;
+        for (var i = 0, len = players.length; i < len; i++) {
+            if (players[i].Name == $("#hiddenplayername").val())
+            {
+                ismissionmember = true;
+            }
 
-    };
-
-    gameHub.client.missionStart = function (players) {
-        $("#missionstartbutton").css('display', 'none');
+            $("#carryoutmember" + i + "image").attr("src", "/Image/Component/Common/Player_img.png");
+            $("#carryoutmember" + i + "image").attr("alt", players[i].Name);
+            $("#carryoutmember" + i + "name").text(players[i].Name);
+            $("#carryoutmember" + i).removeClass("hidden");
+        }
 
         var playerlist = $(".playericon");
+        for (var j = 0, len = playerlist.length; j < len; j++) {
+
+        }
+
+        $("#missionstartbutton").css('display', 'none');
+
+        
         $.each(playerlist, function (i, element) {
             var iconelement = $(element);
             iconelement.css('background-color', 'whitesmoke');
@@ -293,23 +308,5 @@ $(function () {
             userMassage("投票の完了を待機しています．．．", "alert-success");
             gameHub.server.sendVote(false);
         });
-
-        $("#missionstartbutton").bind('tap', function () {
-            gameHub.server.missionStart();
-            return false;
-        });
-
-        $(".missionsuccessfail").bind('tap', function (sender) {
-            gameHub.server.missionUpdate(sender.currentTarget.id === 'successimage');
-            return false;
-        });
-
-        $("#missionresultbutton").bind('tap', function () {
-            gameHub.server.setLeader();
-            return false;
-        });
-
-
     });
-
 });
