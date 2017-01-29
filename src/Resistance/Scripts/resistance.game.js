@@ -1,15 +1,4 @@
-﻿
-function userMassage(message, type) {
-    $("#usermessage").removeClass("alert-success");
-    $("#usermessage").removeClass("alert-warning");
-    $("#usermessage").removeClass("alert-info");
-    $("#usermessage").removeClass("alert-success");
-
-    $("#usermessage").addClass(type);
-    $("#usermessage").text(message);
-}
-
-$(function () {
+﻿$(function () {
     // 同期を取るルーム名を指定 ここではURL
     $.connection.hub.qs = { room: $("#hiddenroomname").val() };
 
@@ -18,7 +7,6 @@ $(function () {
 
     // 変数宣言
     var gameHub = $.connection.gameHub,
-		elementname = "",
         leaderindex = -1,
         maxselectcount = 0,
 		currentselectcount = 0;
@@ -60,19 +48,19 @@ $(function () {
             $("#spylist").append('<a class="btn btn-default" role="button">' + p.Name + '</a>');
         });
 
+        dialogClose($('#rolemodal'));
         $('#rolemodal').modal('show');
     };
 
     // リーダーの設定
     gameHub.client.setLeader = function (leadername, selectCount) {
-
         if (leadername === $("#hiddenplayername").val()) {
             userMassage("ミッションメンバーを" + selectCount + "名選択してください。", "alert-success");
             $("#leadername").text("あなた");
+            $("#leaderbutton").removeClass("hidden");
 
-            var num = 0;
-            for (num = 0; num < 10; num++) {
-                if ($("#playerpanel" + num).hasClass("hidden")) {
+            for (var i = 0; i < 10; i++) {
+                if ($("#playerpanel" + i).hasClass("hidden")) {
                     continue;
                 }
 
@@ -80,9 +68,8 @@ $(function () {
                 $("#leaderbutton").prop("disabled", true);
 
                 // 選択ボタンにメソッドをセット
-                $("#selectbutton" + num).click(function () {
+                $("#selectbutton" + i).click(function () {
                     var panelid = $(this).attr('id').replace(/selectbutton/g, '');
-
 
                     if ($("#playerbackcolor" + panelid).hasClass("bg-info")) {
                         currentselectcount--;
@@ -99,32 +86,42 @@ $(function () {
                     $("#leaderbutton").prop("disabled", !(currentselectcount === maxselectcount));
                 });
 
-                $("#selectbutton" + num).removeClass("hidden");
-
-                if (leadername === $("#playername" + num).text()) {
-                    leaderindex = num;
-
-                    $("#leaderbutton").removeClass("hidden");
-                    $("#leader" + num).removeClass("hidden");
-                } else {
-                    $("#leader" + num).addClass("hidden");
-                }
+                $("#selectbutton" + i).removeClass("hidden");
             }
+
         } else {
             userMassage("ミッションメンバー：" + selectCount + "名 リーダーの選択を待機しています．．．", "alert-success");
             $("#leadername").text(leadername);
+            $("#leaderbutton").addClass("hidden");
 
-            for (var k = 0; k < 10; k++) {
-                if (leadername === $("#playername" + k).text()) {
-                    $("#leader" + k).removeClass("hidden");
-                }
+            for (var j = 0; j < 10; j++) {
+                $("#selectbutton" + j).addClass("hidden");
             }
         }
+
+        for (var k = 0; k < 10; k++) {
+            $("#playerbackcolor" + k).removeClass("bg-info");
+
+            if (leadername === $("#playername" + k).text()) {
+                leaderindex = k;
+                $("#leader" + k).removeClass("hidden");
+            } else {
+                $("#leader" + k).addClass("hidden");
+            }
+        }
+
+        var cardstatuslist = $(".cardstatus");
+        $.each(cardstatuslist, function (i, element) {
+            $(element).addClass("hidden");
+            $(element).attr("src", "/Image/Component/Common/Question.png");
+        });
 
         maxselectcount = selectCount;
         currentselectcount = 0;
         $(".missionmembercount").text(selectCount);
         $("#leaderimage").attr("src", "/Image/Component/Common/Player_img.png");
+
+        dialogClose($('#leadermodal'));
         $('#leadermodal').modal('show');
     };
 
@@ -139,13 +136,18 @@ $(function () {
                 $("#phase" + index).removeClass("text-muted");
                 $("#phase" + index).addClass("text-success");
             } else {
-                $("#phase" + index).removeClass("text-muted");
-                $("#phase" + index).removeClass("text-success");
-                if (state.IsSuccess) {
+                if (state.IsSuccess === null) {
+                    $("#phase" + index).removeClass("text-muted");
+                    $("#phase" + index).addClass("text-success");
+                } else if (state.IsSuccess) {
                     resistancewincount++;
+                    $("#phase" + index).removeClass("text-muted");
+                    $("#phase" + index).removeClass("text-success");
                     $("#phase" + index).addClass("text-primary");
                 } else {
                     spywincount++;
+                    $("#phase" + index).removeClass("text-muted");
+                    $("#phase" + index).removeClass("text-success");
                     $("#phase" + index).addClass("text-danger");
                 }
             }
@@ -185,7 +187,9 @@ $(function () {
         } else {
             userMassage("ミッションメンバー：" + players.length + "名 信任投票をしてください。", "alert-success");
             $("#votebutton").removeClass("hidden");
-            $("#votemodal").modal("show");
+
+            dialogClose($('#beforevotemodal'));
+            $("#beforevotemodal").modal("show");
         }
     };
 
@@ -211,7 +215,9 @@ $(function () {
         } else {
             userMassage("ミッションメンバー：" + players.length + "名 信任投票をしてください。", "alert-success");
             $("#votebutton").removeClass("hidden");
-            $("#votemodal").modal("show");
+
+            dialogClose($('#beforevotemodal'));
+            $("#beforevotemodal").modal("show");
         }
     };
 
@@ -225,16 +231,12 @@ $(function () {
         if (result) {
             userMassage("信任されました。ミッションを開始します。", "alert-success");
             $("#aftervotemessage").text("賛成多数により信任されました。\nミッションを開始します。");
-            $("#aftervotebutton").removeClass("hidden");
             $("#votenextstepbutton").click(function () {
-                $("#votemodal").modal("hide");
                 gameHub.server.missionStart();
             });
         } else {
             $("#aftervotemessage").text("反対多数により不信任となりました。");
-            $("#aftervotebutton").addClass("hidden");
             $("#votenextstepbutton").click(function () {
-                $("#votemodal").modal("hide");
                 // TODO: リーダーを変更して次の投票を開始する処理
                 gameHub.server.reVote();
             });
@@ -242,14 +244,14 @@ $(function () {
 
         userMassage("他プレイヤーの確認を待っています．．．", "alert-success");
 
+        // TODO:カードを使う処理を実装 カードの所有情報を受け取りボタンの活性状態を切り替える
+        // 使えるカードが複数ある可能性があるため、使うを押した後に再度カード選択ダイアログを表示する
+        $("#aftervotebutton").removeClass("hidden");
+
         $("#votebutton").addClass("hidden");
-        $("#beforevotemessage").addClass("hidden");
-        $("#approvebutton").addClass("hidden");
-        $("#rejectbutton").addClass("hidden");
-        
-        $("#aftervotemessage").removeClass("hidden");
-        $("#votenextstepbutton").removeClass("hidden");
-        $("#votemodal").modal("show");
+
+        dialogClose($('#aftervotemodal'));
+        $("#aftervotemodal").modal("show");
     };
 
     // ミッションを開始
@@ -299,7 +301,9 @@ $(function () {
         var successcount = 0,
             failcount = 0;       
 
+        $("#missionbutton").addClass("hidden");
         $("#missionresultmessage").removeClass("text-info");
+        dialogClose($('#aftermissionmodal'));
         $("#aftermissionmodal").modal("show");
 
         for (var i = 0, len = cards.length; i < len; i++) {
@@ -312,7 +316,8 @@ $(function () {
                 $("#missioncard" + i + "image").attr("src", "/Image/Component/Common/Fail.png");
             }
             
-            //$("#missioncard" + i).removeClass("hidden");
+            $("#missioncard" + i + "image").removeClass("hidden");
+            $("#missioncard" + i).removeClass("hidden");
             $("#missioncard" + i).delay(200 * (i + 1)).fadeIn(500);
         }
 
@@ -326,6 +331,8 @@ $(function () {
         }
         $("#successmembercount").text(successcount);
         $("#failmembercount").text(failcount);
+
+
     };
 
     // ゲーム終了
@@ -352,7 +359,7 @@ $(function () {
 
         // 再投票用のボタン
         $("#votebutton").click(function () {
-            $("#votemodal").modal("show");
+            $("#beforevotemodal").modal("show");
         });
 
         // 信任・不信任ボタン
@@ -385,10 +392,48 @@ $(function () {
             userMassage("他プレイヤーの確認を待っています．．．", "alert-success");
             gameHub.server.setLeader();
         });
-
-        // UNDONE: 暫定的にリーダー確認処理を追加
-        $("#checkleader").click(function () {
-            gameHub.server.leaderCheck();
-        });
+        
+        //// UNDONE: 暫定的にリーダー確認処理を追加
+        //$("#checkleader").click(function () {
+        //    gameHub.server.leaderCheck();
+        //});
     });
+
+
+    function userMassage(message, type) {
+        $("#usermessage").removeClass("alert-success");
+        $("#usermessage").removeClass("alert-warning");
+        $("#usermessage").removeClass("alert-info");
+        $("#usermessage").removeClass("alert-success");
+        
+        $("#usermessage").addClass(type);
+        $("#usermessage").text(message);
+    }
+
+    function dialogClose(exclusion) {
+        if ($('#rolemodal') != exclusion) {
+            $('#rolemodal').modal('hide');
+        }
+
+        if ($('#leadermodal') != exclusion) {
+            $('#leadermodal').modal('hide');
+        }
+
+        if ($('#beforevotemodal') != exclusion) {
+            $('#beforevotemodal').modal('hide');
+        }
+
+        if ($('#aftervotemodal') != exclusion) {
+            $('#aftervotemodal').modal('hide');
+        }
+
+        if ($('#beforemissionmodal') != exclusion) {
+            $('#beforemissionmodal').modal('hide');
+        }
+
+        if ($('#aftermissionmodal') != exclusion) {
+            $('#aftermissionmodal').modal('hide');
+        }
+    }
+
 });

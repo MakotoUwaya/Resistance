@@ -86,15 +86,25 @@ public class GameHub : Hub
             return;
         }
 
-        var status = new List<Mission>();
-        for (int i = 0; i <= game.CurrentPhaseIndex; i++)
+        try
         {
-            status.Add(game.GamePhase[i].PhaseMission);
+            var status = new List<Mission>();
+            for (int i = 0; i <= game.CurrentPhaseIndex; i++)
+            {
+                status.Add(game.GamePhase[i].PhaseMission);
+            }
+
+            UpdateSelectHIstory.Clear();
+
+            Clients.Group(roomName).Statusupdate(status);
+            Clients.Group(roomName).SetLeader(game.GamePhase[game.CurrentPhaseIndex].CurrentLeader.Name,
+                                                Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
         }
 
-        Clients.Group(roomName).Statusupdate(status);
-        Clients.Group(roomName).SetLeader(game.GamePhase[game.CurrentPhaseIndex].CurrentLeader.Name,
-                                            Rule.SelectMemberCount(RoomList[roomName].MemberCount, game.CurrentPhaseIndex + 1));
     }
 
     /// <summary>
@@ -254,8 +264,8 @@ public class GameHub : Hub
             Clients.Group(roomName).MissionComplete(mission.IsSuccess, sortedResult.ToArray());
 
             var leader = game.GamePhase[game.CurrentPhaseIndex].CurrentLeader;
-            game.GamePhase[++game.CurrentPhaseIndex] = new Phase(game.PlayerList, leader);
-            game.GamePhase[game.CurrentPhaseIndex].NextLeader();
+            game.GamePhase.Add(new Phase(game.PlayerList, leader));
+            game.GamePhase[++game.CurrentPhaseIndex].NextLeader();
         }
     }
 

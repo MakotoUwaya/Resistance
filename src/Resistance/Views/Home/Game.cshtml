@@ -322,22 +322,20 @@
     </div>
 </div>
 
-<!-- Vote Modal -->
-<div class="modal fade" id="votemodal" tabindex="-1" role="dialog" aria-labelledby="votemodaltitle" aria-hidden="true">
+<!-- Before Vote Modal -->
+<div class="modal fade" id="beforevotemodal" tabindex="-1" role="dialog" aria-labelledby="beforevotemodaltitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="votemodaltitle">ミッションチーム投票</h4>
+                <h4 class="modal-title" id="beforevotemodaltitle">ミッションチーム投票</h4>
             </div>
             <div class="modal-body text-center dialogbody">
                 <p id="beforevotemessage">
                     ミッションメンバーは以下の<span class="missionmembercount"></span>人です。<br />
                     「信任」・「不信任」を表明してください。
-                </p>
-                <p id="aftervotemessage" class="hidden">
                 </p>
                 <div class="thumbnaillist">
                     <div id="missionmember0" class="thumbnailcontainer hidden">
@@ -378,10 +376,66 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="aftervotebutton" type="button" class="btn btn-success hidden" data-dismiss="modal">カードを使う</button>
-                <button id="votenextstepbutton" type="button" class="btn btn-success hidden" data-dismiss="modal">確認</button>
                 <button id="approvebutton" type="button" class="btn btn-primary votedialogbutton" data-dismiss="modal">信任</button>
                 <button id="rejectbutton" type="button" class="btn btn-danger votedialogbutton" data-dismiss="modal">不信任</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- After Vote Modal -->
+<div class="modal fade" id="aftervotemodal" tabindex="-1" role="dialog" aria-labelledby="aftervotemodaltitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="aftervotemodaltitle">投票完了</h4>
+            </div>
+            <div class="modal-body text-center dialogbody">
+                <p id="aftervotemessage">
+                </p>
+                @*<div class="thumbnaillist">
+                    <div id="missionmember0" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember0image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember0name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember1" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember1image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember1name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember2" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember2image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember2name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember3" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember3image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember3name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+
+                    <div id="missionmember4" class="thumbnailcontainer hidden">
+                        <figure class="playerdialog pull-left">
+                            <img id="missionmember4image" src="~/Image/Component/Common/Player_img.png" alt="プレイヤー名" class="img-responsive thumbnailsize" />
+                            <figcaption class="playerdialogname"><p id="missionmember4name">プレイヤー名</p></figcaption>
+                        </figure>
+                    </div>
+                </div>*@
+            </div>
+            <div class="modal-footer">
+                <button id="aftervotebutton" type="button" class="btn btn-success" data-dismiss="modal">カードを使う</button>
+                <button id="votenextstepbutton" type="button" class="btn btn-success" data-dismiss="modal">確認</button>
             </div>
         </div>
     </div>
@@ -438,9 +492,9 @@
                         </figure>
                     </div>
                 </div>
-                <div class="row">
-                    <button id="successbutton" type="button" class="btn btn-primary center-block missiondialogbutton" data-dismiss="modal">ミッション成功</button>
-                    <button id="failbutton" type="button" class="btn btn-danger center-block missiondialogbutton" data-dismiss="modal">ミッション失敗</button>
+                <div class="row center-block">
+                    <button id="successbutton" type="button" class="btn btn-primary missiondialogbutton" data-dismiss="modal">ミッション成功</button>
+                    <button id="failbutton" type="button" class="btn btn-danger missiondialogbutton" data-dismiss="modal">ミッション失敗</button>
                 </div>
             </div>
             <div class="modal-footer">
