@@ -34,7 +34,7 @@ namespace Resistance.Core
 
             this.PlayerList = playerList;
             this.GamePhase = new List<Phase>(5);
-            this.GamePhase.Add(new Phase(this.PlayerList, this.PlayerList[random.Next(this.PlayerList.Count())]));
+            this.GamePhase.Add(new Phase(this.PlayerList, this.PlayerList[random.Next(this.PlayerList.Count())], 0));
             this.CurrentPhaseIndex = 0;
         }
 

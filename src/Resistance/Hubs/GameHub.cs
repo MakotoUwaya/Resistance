@@ -168,7 +168,7 @@ public class GameHub : Hub
         }
 
         // 投票用のインスタンスを生成
-        if (phase.PhaseVote.Count() <= phase.CurrentVoteIndex)
+        if (phase.PhaseVote.Count() <= phase.CurrentPhaseIndex)
         {
             phase.PhaseVote.Add(new Vote(phase.PlayerList, phase.MissionMember));
         }
@@ -196,7 +196,7 @@ public class GameHub : Hub
         var roomName = Context.QueryString["room"];
         var gameIndex = GameList[roomName].CurrentPhaseIndex;
         var phase = GameList[roomName].GamePhase[gameIndex];
-        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+        var vote = phase.PhaseVote[phase.CurrentPhaseIndex];
 
         var player = vote.PlayerList.Where(p => p.Name == Context.User.Identity.Name).SingleOrDefault();
         var index = vote.PlayerList.IndexOf(player);
@@ -225,10 +225,9 @@ public class GameHub : Hub
 
         var gameIndex = GameList[roomName].CurrentPhaseIndex;
         var phase = GameList[roomName].GamePhase[gameIndex];
-        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+        var vote = phase.PhaseVote[phase.CurrentPhaseIndex];
 
-        phase.CurrentVoteIndex++;
-        if (Rule.MaxVoteCount <= phase.CurrentVoteIndex)
+        if (Rule.MaxVoteCount <= phase.CurrentPhaseIndex)
         {
             phase.PhaseMission.OverReject();
             Clients.Group(roomName).SpyWins();
@@ -279,11 +278,11 @@ public class GameHub : Hub
         if (mission.IsConclusion)
         {
             var sortedResult = mission.Result.OrderByDescending(r => r.IsTrue).ThenBy(r => r.TargetPlayer.ConnectionId);
-            mission.CarryOut(game.PlayerList.Count, game.CurrentPhaseIndex + 1);
+            mission.CarryOut(game.PlayerList.Count, ++game.CurrentPhaseIndex);
             Clients.Group(roomName).MissionComplete(mission.IsSuccess, sortedResult.ToArray());
 
             var leader = game.GamePhase[game.CurrentPhaseIndex].CurrentLeader;
-            game.GamePhase.Add(new Phase(game.PlayerList, leader));
+            game.GamePhase.Add(new Phase(game.PlayerList, leader, game.CurrentPhaseIndex));
             game.GamePhase[++game.CurrentPhaseIndex].NextLeader();
         }
     }
@@ -299,7 +298,7 @@ public class GameHub : Hub
         var game = GameList[roomName];
         var gameIndex = game.CurrentPhaseIndex;
         var phase = game.GamePhase[gameIndex];
-        var vote = phase.PhaseVote[phase.CurrentVoteIndex];
+        var vote = phase.PhaseVote[phase.CurrentPhaseIndex];
         var mission = game.GamePhase[gameIndex].PhaseMission;
 
         // プレイヤーの生成

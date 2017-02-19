@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Resistance.Core
 {
     public class Phase
     {
+        public int GamePhaseIndex { get; private set; }
         public List<Player> PlayerList { get; private set; }
         public Player CurrentLeader { get; private set; }
         public List<Player> MissionMember { get; }
         public List<Vote> PhaseVote { get; }
-        public int CurrentVoteIndex { get; set; }
+        public int CurrentPhaseIndex { get; set; }
         public Mission PhaseMission { get; }
 
-        public Phase(List<Player> playerList, Player player)
+        public Phase(List<Player> playerList, Player player, int gamePhaseIndex)
         {
+            this.GamePhaseIndex = gamePhaseIndex;
             this.PlayerList = playerList;
             this.CurrentLeader = player;
             this.MissionMember = new List<Player>();
-            this.CurrentVoteIndex = 0;
+            this.CurrentPhaseIndex = 0;
             this.PhaseVote = new List<Vote>(5);
             this.PhaseVote.Add(new Vote(this.PlayerList, this.MissionMember));
             this.PhaseMission = new Mission(this.MissionMember);
@@ -48,13 +47,13 @@ namespace Resistance.Core
         {
             get
             {
-                return this.MissionMember.Count() == Rule.SelectMemberCount(this.PlayerList.Count(), this.CurrentVoteIndex + 1);
+                return this.MissionMember.Count() == Rule.SelectMemberCount(this.PlayerList.Count(), this.GamePhaseIndex + 1);
             }
         }
 
         public void AddMissionMember(Player player)
         {
-            if (this.MissionMember.Count() < Rule.SelectMemberCount(this.PlayerList.Count(), this.CurrentVoteIndex + 1))
+            if (this.MissionMember.Count() < Rule.SelectMemberCount(this.PlayerList.Count(), this.GamePhaseIndex + 1))
             {
                 this.MissionMember.Add(player);
             }
@@ -72,7 +71,7 @@ namespace Resistance.Core
         {
             get
             {
-                return this.PhaseVote[this.CurrentVoteIndex].IsApprove == null;
+                return this.PhaseVote[this.CurrentPhaseIndex].IsApprove == null;
             }
         }
     }
