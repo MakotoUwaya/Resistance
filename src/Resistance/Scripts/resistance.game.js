@@ -77,7 +77,7 @@
                     } else {
                         if (currentselectcount < maxselectcount) {
                             currentselectcount++;
-                            $("#playerbackcolor" + panelid).addClass("bg-info")
+                            $("#playerbackcolor" + panelid).addClass("bg-info");
                         }
                     }
                     gameHub.server.updateSelectStatus("playerbackcolor" + panelid, $("#playerbackcolor" + panelid).hasClass("bg-info"));
@@ -258,7 +258,7 @@
     gameHub.client.missionStart = function (members, memberindex) {
         var ismissionmember = false;
         for (var i = 0, len = members.length; i < len; i++) {
-            if (members[i].Name == $("#hiddenplayername").val())
+            if (members[i].Name === $("#hiddenplayername").val())
             {
                 ismissionmember = true;
             }
@@ -411,27 +411,27 @@
     }
 
     function dialogClose(exclusion) {
-        if ($('#rolemodal') != exclusion) {
+        if ($('#rolemodal') !== exclusion) {
             $('#rolemodal').modal('hide');
         }
 
-        if ($('#leadermodal') != exclusion) {
+        if ($('#leadermodal') !== exclusion) {
             $('#leadermodal').modal('hide');
         }
 
-        if ($('#beforevotemodal') != exclusion) {
+        if ($('#beforevotemodal') !== exclusion) {
             $('#beforevotemodal').modal('hide');
         }
 
-        if ($('#aftervotemodal') != exclusion) {
+        if ($('#aftervotemodal') !== exclusion) {
             $('#aftervotemodal').modal('hide');
         }
 
-        if ($('#beforemissionmodal') != exclusion) {
+        if ($('#beforemissionmodal') !== exclusion) {
             $('#beforemissionmodal').modal('hide');
         }
 
-        if ($('#aftermissionmodal') != exclusion) {
+        if ($('#aftermissionmodal') !== exclusion) {
             $('#aftermissionmodal').modal('hide');
         }
     }
