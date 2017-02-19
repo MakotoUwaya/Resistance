@@ -12,9 +12,6 @@ using System.Threading.Tasks;
 [HubName("gameHub")]
 public class GameHub : Hub
 {
-    private const int offset = 16;
-    private const int cardsize = 120;
-
     /// <summary>
     /// 部屋リスト
     /// </summary>
@@ -273,8 +270,6 @@ public class GameHub : Hub
     /// <summary>
     /// ゲームの初期化
     /// </summary>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
     public void Initialization()
     {
         // ゲームを初期化する処理はここにまとめる
@@ -332,14 +327,21 @@ public class GameHub : Hub
     /// <summary>
     /// プレイヤーの通し番号を取得する
     /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
+    /// <param name="player">対象プレイヤー</param>
+    /// <returns>通し番号(Index)</returns>
     private int GetIndex(Player player)
     {
         var roomName = Context.QueryString["room"];
         return RoomList[roomName].PlayerList.IndexOf(player);
     }
 
+    /// <summary>
+    /// 投票完了確認
+    /// </summary>
+    /// <param name="dict">投票状況を管理する配列</param>
+    /// <param name="roomName">部屋名</param>
+    /// <param name="maxCount">最大人数</param>
+    /// <returns>投票完了</returns>
     private bool CallerResponceCheck(Dictionary<string, List<string>> dict, string roomName, int maxCount)
     {
         if (!dict.ContainsKey(roomName))
@@ -395,5 +397,4 @@ public class GameHub : Hub
         return null;
     }
     #endregion
-
 }
