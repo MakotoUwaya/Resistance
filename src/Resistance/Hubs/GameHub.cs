@@ -76,8 +76,10 @@ public class GameHub : Hub
         var game = GameList[roomName];
         if (game.JudgeConclusion)
         {
-            // ゲーム終了の判定はここではないはず
-            Clients.Group(roomName).Gameover($"レジスタンス：{game.ResistanceWin} vs スパイ：{game.SpyWin}\n{(game.SpyWin < game.ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
+            // TODO: ゲーム終了の判定はここではないはず
+            Clients.Group(roomName)
+                .Gameover($"レジスタンス：{game.ResistanceWin} vs スパイ：{game.SpyWin}\n" + 
+                            $"{(game.SpyWin < game.ResistanceWin ? "レジスタンス" : "スパイ")}側の勝利です！！");
             game = new Game(RoomList[roomName].PlayerList);
             SetLeaderCaller.Remove(roomName);
             return;
@@ -105,9 +107,8 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// リーダーの変更ダイアログを表示
+    /// リーダー変更ダイアログ表示
     /// </summary>
-    /// <param name="roomName"></param>
     private void LeaderCheck()
     {
         var roomName = Context.QueryString["room"];
@@ -117,10 +118,11 @@ public class GameHub : Hub
     }
 
     /// <summary>
-    /// プレイヤーの選択状態を更新
+    /// ミッションメンバー選択
+    /// プレイヤー選択状態を更新
     /// </summary>
-    /// <param name="elementName"></param>
-    /// <param name="color"></param>
+    /// <param name="elementName">対象の要素名</param>
+    /// <param name="selected">選択状態の有無</param>
     public void UpdateSelectStatus(string elementName, bool selected)
     {
         var roomName = Context.QueryString["room"];
@@ -144,6 +146,10 @@ public class GameHub : Hub
         }
     }
 
+    /// <summary>
+    /// ミッションメンバー選択
+    /// 投票ダイアログ表示
+    /// </summary>
     public void StartVote()
     {
         var roomName = Context.QueryString["room"];
@@ -180,6 +186,11 @@ public class GameHub : Hub
         }
     }
 
+    /// <summary>
+    /// ミッションメンバー選択
+    /// 信任投票
+    /// </summary>
+    /// <param name="ok">信任可否</param>
     public void SendVote(bool ok)
     {
         var roomName = Context.QueryString["room"];
@@ -200,6 +211,10 @@ public class GameHub : Hub
         }
     }
 
+    /// <summary>
+    /// ミッションメンバー選択
+    /// 再投票
+    /// </summary>
     private void ReVote()
     {
         var roomName = Context.QueryString["room"];
@@ -222,6 +237,9 @@ public class GameHub : Hub
         phase.NextLeader();
     }
 
+    /// <summary>
+    /// ミッション開始
+    /// </summary>
     public void MissionStart()
     {
         var roomName = Context.QueryString["room"];
@@ -237,6 +255,10 @@ public class GameHub : Hub
         Clients.Caller.MissionStart(mission.Member.ToArray(), indexList.ToArray());
     }
 
+    /// <summary>
+    /// ミッション状況更新
+    /// </summary>
+    /// <param name="success">ミッション成否</param>
     public void MissionUpdate(bool success)
     {
         var roomName = Context.QueryString["room"];
